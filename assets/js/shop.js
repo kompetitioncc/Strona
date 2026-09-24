@@ -98,9 +98,9 @@ document.addEventListener('DOMContentLoaded', function () {
       ['nowy', 'To mój pierwszy plan', 'dotąd jeździłem/am „na czuja”'],
       ['sredni', 'Trenuję regularnie od kilku miesięcy', ''],
       ['zaawansowany', 'Trenuję z planem od lat, startuję', '']],
-      next: function () { return null; } }
+      next: function () { return 'lead'; } }
   };
-  var ORDER_HINT = 6;
+  var ORDER_HINT = 7;
 
   var interacted = false;
   function render(key) {
@@ -120,7 +120,9 @@ document.addEventListener('DOMContentLoaded', function () {
         answers[key] = b.getAttribute('data-v');
         history.push(key);
         var nx = node.next(answers[key]);
-        nx ? render(nx) : result();
+        if (nx === 'lead') renderLead(recommend());
+        else if (nx) render(nx);
+        else result();
       });
     });
     if (interacted) { var first = $('.quiz__opt', body); first && first.focus({ preventScroll: true }); }
@@ -164,8 +166,31 @@ document.addEventListener('DOMContentLoaded', function () {
     return { slug: slug, weeks: weeks, hours: hours, why: why, notes: notes, alts: alts, addon: addon };
   }
 
-  function result() {
-    var r = recommend(), p = SHOP.plans[r.slug];
+  function renderLead(r) {
+    var p = SHOP.plans[r.slug];
+    stepEl.textContent = 'Ostatni krok'; bar.style.width = Math.min(100, (history.length + 1) / ORDER_HINT * 100) + '%'; back.hidden = false;
+    body.innerHTML = '<h2 class="quiz__q">Ostatni krok — dokąd wysłać Twój plan?</h2>' +
+      '<p class="muted">Na podstawie Twoich odpowiedzi dobrałem konkretny plan. Podaj e-mail, a pokażę Ci go od razu i dodatkowo wyślę na skrzynkę.</p>' +
+      '<form class="form" data-form="newsletter" action="/api/newsletter.php" method="post" novalidate>' +
+      '<input type="hidden" name="plan" value="' + esc(p.name + ' – ' + tyg(r.weeks) + ' / ' + SHOP.hoursLabel[r.hours]) + '">' +
+      '<div class="row"><div class="field"><label for="quiz-imie">Imię</label><input id="quiz-imie" name="imie" type="text" autocomplete="given-name"></div>' +
+      '<div class="field"><label for="quiz-email">E-mail *</label><input id="quiz-email" name="email" type="email" autocomplete="email" required></div></div>' +
+      '<label class="consent"><input type="checkbox" name="zgoda" value="1" required><span>Chcę dostać ten plan i newsletter KOMpetition.cc na e-mail. Zgodę mogę wycofać w każdej chwili. Administratorem danych jest Jakub Obitko – szczegóły w <a href="/polityka-prywatnosci/">polityce prywatności</a>.</span></label>' +
+      '<div class="hp" aria-hidden="true"><label>Strona www<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
+      '<div><button class="btn btn--sun" type="submit">Pokaż mi mój plan</button></div><p class="form-status" role="status" aria-live="polite"></p></form>';
+    var form = $('form', body);
+    if (window.KOM_bindForm) window.KOM_bindForm(form);
+    form.addEventListener('submit', function () {
+      if (!form.checkValidity()) return;
+      history.push('lead');
+      result(r);
+    });
+    if (interacted) { var first = $('#quiz-imie', body); first && first.focus({ preventScroll: true }); }
+  }
+
+  function result(r) {
+    r = r || recommend();
+    var p = SHOP.plans[r.slug];
     bar.style.width = '100%'; stepEl.textContent = 'Twój plan'; back.hidden = false;
     var detail = p.url + '?w=' + r.weeks + '&h=' + r.hours;
     var html = '<div class="quiz__result"><p class="eyebrow">Polecam Ci</p>' +
@@ -179,21 +204,10 @@ document.addEventListener('DOMContentLoaded', function () {
       html += '<div class="quiz__addon"><b>Start w upale?</b> Dołóż <a href="' + hp.url + '?h=' + r.hours + '">' + esc(hp.name) + '</a> – 5 tygodni, ' + hp.prices['5'] + ' zł. Najlepiej zacząć go 5 tygodni przed startem, równolegle z planem.</div>';
     }
     if (r.alts.length) html += '<p class="quiz__alts">Warto też rozważyć: ' + r.alts.map(function (a) { return '<a href="' + SHOP.plans[a].url + '?w=' + r.weeks + '&h=' + r.hours + '">' + esc(SHOP.plans[a].name) + '</a>'; }).join(' · ') + '</p>';
-    html += '<div class="quiz__lead">' +
-      '<h3>Wyślę Ci ten plan na e-mail</h3>' +
-      '<form class="form" data-form="newsletter" action="/api/newsletter.php" method="post" novalidate>' +
-      '<input type="hidden" name="plan" value="' + esc(p.name + ' – ' + tyg(r.weeks) + ' / ' + SHOP.hoursLabel[r.hours]) + '">' +
-      '<div class="row"><div class="field"><label for="quiz-imie">Imię</label><input id="quiz-imie" name="imie" type="text" autocomplete="given-name"></div>' +
-      '<div class="field"><label for="quiz-email">E-mail *</label><input id="quiz-email" name="email" type="email" autocomplete="email" required></div></div>' +
-      '<label class="consent"><input type="checkbox" name="zgoda" value="1" required><span>Chcę dostać ten plan i newsletter KOMpetition.cc na e-mail. Zgodę mogę wycofać w każdej chwili. Administratorem danych jest Jakub Obitko – szczegóły w <a href="/polityka-prywatnosci/">polityce prywatności</a>.</span></label>' +
-      '<div class="hp" aria-hidden="true"><label>Strona www<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
-      '<div><button class="btn btn--sm" type="submit">Wyślij mi ten plan</button></div><p class="form-status" role="status" aria-live="polite"></p></form></div>';
     html += '<p class="quiz__alts"><button type="button" class="link-arrow" id="quiz-restart">Zacznij od nowa</button> · <a href="#katalog">Przeglądaj wszystkie plany</a></p></div>';
     body.innerHTML = html;
     $('#quiz-buy').addEventListener('click', function () { track(r.slug, r.weeks); });
     $('#quiz-restart').addEventListener('click', function () { start(true); });
-    var leadForm = $('.quiz__lead form', body);
-    if (leadForm && window.KOM_bindForm) window.KOM_bindForm(leadForm);
     window.dataLayer && window.dataLayer.push({ event: 'quiz_complete', plan: r.slug, weeks: r.weeks, hours: r.hours });
   }
 
@@ -204,7 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   back.addEventListener('click', function () {
     if (!history.length) return;
-    var prev = history.pop(); delete answers[prev]; render(prev);
+    var prev = history.pop(); delete answers[prev];
+    prev === 'lead' ? renderLead(recommend()) : render(prev);
   });
   startBtn.addEventListener('click', function () { start(true); });
   start(location.hash === '#quiz-start');
