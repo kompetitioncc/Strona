@@ -23,11 +23,11 @@ const SITE_URL = 'https://kompetition.cc';
 const args = new Set(process.argv.slice(2));
 const DRY = args.has('--dry-run'), FORCE = args.has('--force'), TOS = args.has('--tos');
 const KEY = process.env.STRIPE_SECRET_KEY || '';
-if (!DRY && !/^sk_(test|live)_/.test(KEY)) {
-  console.error('Brak klucza. Ustaw zmienną STRIPE_SECRET_KEY (Stripe → Developers → API keys → Secret key).');
+if (!DRY && !/^[sr]k_(test|live)_/.test(KEY)) {
+  console.error('Brak klucza. Ustaw zmienną STRIPE_SECRET_KEY (Stripe → Developers → API keys → Secret key albo klucz ograniczony rk_ z uprawnieniami Write: Products, Prices, Payment Links).');
   process.exit(1);
 }
-const MODE = KEY.startsWith('sk_live_') ? 'LIVE' : 'TEST';
+const MODE = /^[sr]k_live_/.test(KEY) ? 'LIVE' : 'TEST';
 
 const shop = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/shop.json'), 'utf8'));
 const linksFile = path.join(ROOT, 'content/stripe-links.json');
