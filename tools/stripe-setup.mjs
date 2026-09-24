@@ -55,7 +55,7 @@ async function stripe(endpoint, params) {
   return j;
 }
 
-const hours = shop.hours.map((h) => ({ label: `${shop.hoursLabel[h]} tygodniowo`, value: h.replace('-', '_') }));
+const hours = shop.hours.map((h) => ({ label: `${shop.hoursLabel[h]} tygodniowo`, value: h.replace(/[^a-zA-Z0-9]/g, '') }));
 console.log(`Stripe – tryb ${DRY ? 'PODGLĄD (dry-run)' : MODE}\n`);
 
 for (const [slug, plan] of Object.entries(shop.plans)) {
