@@ -4,7 +4,7 @@ window.KOM_CONFIG = {
     "newsletterEndpoint": "/api/newsletter.php",
     "email": "kontakt@kompetition.cc",
     "relay": true,
-    "ga4Id": "",
+    "gtmId": "GTM-MBTQW9G3",
     "paymentLinks": {
         "baza-tlenowa-4": "https://buy.stripe.com/9B614oe8S0tU8k9eNw4sE00",
         "baza-tlenowa-8": "https://buy.stripe.com/dRm14o5Cm2C26c134O4sE01",

@@ -99,7 +99,7 @@ const s = fs.existsSync(sFile) ? JSON.parse(fs.readFileSync(sFile, 'utf8')) : {}
 s.paymentLinks = { ...(s.paymentLinks || {}), ...links };
 const cfg = {
   contactEndpoint: s.contactEndpoint ?? '/api/kontakt.php', newsletterEndpoint: s.newsletterEndpoint ?? '/api/newsletter.php',
-  email: s.email ?? 'kontakt@kompetition.cc', relay: s.relay ?? true, ga4Id: s.ga4Id ?? '', paymentLinks: s.paymentLinks,
+  email: s.email ?? 'kontakt@kompetition.cc', relay: s.relay ?? true, gtmId: s.gtmId ?? '', paymentLinks: s.paymentLinks,
 };
 if (DRY) { console.log(`\n[dry-run] Zapisałbym ${Object.keys(links).length} linków do content/settings.json i assets/js/config.js.`); process.exit(0); }
 fs.writeFileSync(sFile, JSON.stringify(s, null, 4));

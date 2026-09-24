@@ -5,11 +5,11 @@ $first = !empty(auth_data()['must_change']);
 $ok = $err = null;
 $sfile = CONTENT_DIR . '/settings.json';
 $s = load_json($sfile, []) + ['email' => 'kontakt@kompetition.cc', 'contactEndpoint' => '/api/kontakt.php', 'newsletterEndpoint' => '/api/newsletter.php',
-    'ga4Id' => '', 'relay' => true, 'paymentLinks' => []];
+    'gtmId' => '', 'relay' => true, 'paymentLinks' => []];
 $shop = load_json(CONTENT_DIR . '/shop.json', ['plans' => []]);
 
 function write_config(array $s): void {
-    $cfg = ['contactEndpoint' => $s['contactEndpoint'], 'newsletterEndpoint' => $s['newsletterEndpoint'], 'email' => $s['email'], 'relay' => (bool)$s['relay'], 'ga4Id' => $s['ga4Id'],
+    $cfg = ['contactEndpoint' => $s['contactEndpoint'], 'newsletterEndpoint' => $s['newsletterEndpoint'], 'email' => $s['email'], 'relay' => (bool)$s['relay'], 'gtmId' => $s['gtmId'],
         'paymentLinks' => (object)array_filter((array)$s['paymentLinks'])];
     $js = "/* Plik generowany przez panel /admin → Ustawienia. Zmiany wprowadzaj w panelu. */\nwindow.KOM_CONFIG = "
         . json_encode($cfg, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ";\n";
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $first = false;
             $ok = 'Hasło zmienione.';
         } elseif (($_POST['action'] ?? '') === 'site') {
-            foreach (['email', 'ga4Id', 'contactEndpoint', 'newsletterEndpoint'] as $k) $s[$k] = trim((string)($_POST[$k] ?? ''));
+            foreach (['email', 'gtmId', 'contactEndpoint', 'newsletterEndpoint'] as $k) $s[$k] = trim((string)($_POST[$k] ?? ''));
             $pl = [];
             foreach ((array)($_POST['pay'] ?? []) as $k => $v) {
                 $k = preg_replace('/[^a-z0-9-]/', '', (string)$k); $v = trim((string)$v);
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($s['pay_ftp'], $s['pay_vo2max']);
             $s['relay'] = !empty($_POST['relay']);
             if (!filter_var($s['email'], FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Podaj poprawny e-mail.');
-            if ($s['ga4Id'] !== '' && !preg_match('/^G-[A-Z0-9]{4,}$/', $s['ga4Id'])) throw new RuntimeException('Identyfikator GA4 ma postać G-XXXXXXX.');
+            if ($s['gtmId'] !== '' && !preg_match('/^GTM-[A-Z0-9]{4,}$/', $s['gtmId'])) throw new RuntimeException('Identyfikator GTM ma postać GTM-XXXXXXX.');
             save_json($sfile, $s);
             write_config($s);
             $ok = 'Ustawienia zapisane.';
@@ -67,7 +67,7 @@ layout_start('Ustawienia', 'settings.php');
     <h2>Strona</h2>
     <label>E-mail, na który trafiają wiadomości z formularzy<input type="email" name="email" value="<?= h($s['email']) ?>" required></label>
     <label class="check"><input type="checkbox" name="relay" value="1" <?= !empty($s['relay']) ? 'checked' : '' ?>> Zapasowa wysyłka przez FormSubmit, gdy PHP nie odpowie</label>
-    <label>Google Analytics 4 – identyfikator <small>(puste = brak statystyk i baneru zgody)</small><input name="ga4Id" value="<?= h($s['ga4Id']) ?>" placeholder="G-XXXXXXXXXX"></label>
+    <label>Google Tag Manager – identyfikator kontenera <small>(puste = brak statystyk i baneru zgody)</small><input name="gtmId" value="<?= h($s['gtmId']) ?>" placeholder="GTM-XXXXXXX"></label>
     <details<?= array_filter((array)$s['paymentLinks']) ? '' : ' open' ?>><summary>Linki płatności Stripe (<?= count(array_filter((array)$s['paymentLinks'])) ?> ustawionych)</summary>
       <p class="muted small">Najprościej wygenerować je skryptem <code>tools/stripe-setup.mjs</code> (instrukcja w README). Puste pole = przycisk „Kup” prowadzi do formularza kontaktowego.</p>
       <table class="list"><?php foreach ($shop['plans'] as $slug => $pl): foreach ($pl['weeks'] as $w): $k = "$slug-$w"; ?>

@@ -24,6 +24,7 @@ if (!empty($_POST['website'])) out(true);
 
 $email = trim(mb_substr((string)($_POST['email'] ?? ''), 0, 160));
 $name  = trim(mb_substr(preg_replace('/[\r\n,;"]+/', ' ', (string)($_POST['imie'] ?? '')), 0, 80));
+$plan  = trim(mb_substr(preg_replace('/[\r\n,;"]+/', ' ', (string)($_POST['plan'] ?? '')), 0, 120));
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) out(false, 'Podaj poprawny adres e-mail.', 422);
 
 $dir = __DIR__ . '/data';
@@ -36,12 +37,14 @@ if (stripos($existing, ',' . $email . ',') === false) {
     $fh = fopen($file, 'a');
     if ($fh === false) out(false, 'Błąd zapisu na serwerze.', 500);
     flock($fh, LOCK_EX);
-    if ($isNew) fwrite($fh, "data,email,imie\n");
-    fwrite($fh, date('Y-m-d H:i') . ',' . $email . ',' . $name . "\n");
+    if ($isNew) fwrite($fh, "data,email,imie,plan\n");
+    fwrite($fh, date('Y-m-d H:i') . ',' . $email . ',' . $name . ',' . $plan . "\n");
     flock($fh, LOCK_UN);
     fclose($fh);
 
-    @mail(RECIPIENT, '=?UTF-8?B?' . base64_encode('Nowy zapis do newslettera') . '?=',
-        "Nowy zapis: $email $name", 'From: KOMpetition.cc <' . FROM . ">\r\nContent-Type: text/plain; charset=UTF-8");
+    $subject = $plan !== '' ? 'Nowy lead z ankiety doboru planu' : 'Nowy zapis do newslettera';
+    $body = "Nowy zapis: $email $name" . ($plan !== '' ? "\nAnkieta poleciła plan: $plan" : '');
+    @mail(RECIPIENT, '=?UTF-8?B?' . base64_encode($subject) . '?=',
+        $body, 'From: KOMpetition.cc <' . FROM . ">\r\nContent-Type: text/plain; charset=UTF-8");
 }
 out(true);

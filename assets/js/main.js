@@ -100,28 +100,27 @@
   var topic = params.get('temat') || (params.get('plan') ? 'Chcę kupić plan: ' + params.get('plan') : '');
   if (topic) { var ta = $('form[data-form="contact"] textarea'); if (ta && !ta.value) ta.value = topic + '\n\n'; }
 
-  /* Statystyki GA4 — dopiero po zgodzie */
-  if (cfg.ga4Id) {
+  /* Statystyki (Google Tag Manager) — dopiero po zgodzie */
+  if (cfg.gtmId) {
     var KEY = 'kom-analytics-consent';
     var get = function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
     var set = function (v) { try { localStorage.setItem(KEY, v); } catch (e) {} };
-    var loadGA = function () {
-      var s = doc.createElement('script'); s.async = true;
-      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(cfg.ga4Id);
-      doc.head.appendChild(s);
+    var loadGTM = function () {
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function () { window.dataLayer.push(arguments); };
-      window.gtag('js', new Date()); window.gtag('config', cfg.ga4Id, { anonymize_ip: true });
+      window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+      var s = doc.createElement('script'); s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(cfg.gtmId);
+      doc.head.appendChild(s);
     };
     var c = get();
-    if (c === 'yes') loadGA();
+    if (c === 'yes') loadGTM();
     else if (c !== 'no') {
       var bar = doc.createElement('div');
       bar.className = 'consent-bar'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', 'Zgoda na statystyki');
       bar.innerHTML = '<p>Korzystam z Google Analytics, żeby wiedzieć, które treści są przydatne. Włączę statystyki tylko za Twoją zgodą. <a href="/polityka-prywatnosci/">Więcej</a></p><div><button class="btn btn--ghost btn--sm" type="button" data-c="no">Odrzuć</button><button class="btn btn--sm" type="button" data-c="yes">Akceptuję</button></div>';
       bar.addEventListener('click', function (e) {
         var v = e.target.getAttribute && e.target.getAttribute('data-c'); if (!v) return;
-        set(v); bar.remove(); if (v === 'yes') loadGA();
+        set(v); bar.remove(); if (v === 'yes') loadGTM();
       });
       body.appendChild(bar);
     }
@@ -142,13 +141,13 @@
         form.reset();
         if (type === 'newsletter') { try { localStorage.setItem('kom-nl', 'subscribed'); } catch (e2) {} var pop = form.closest('.nl-pop'); pop && setTimeout(function () { pop.classList.remove('show'); setTimeout(function () { pop.remove(); }, 300); }, 2200); }
         say(type === 'newsletter' ? 'Dziękuję! Jesteś na liście.' : 'Dziękuję! Wiadomość wysłana — odezwę się najszybciej, jak to możliwe.', true);
-        window.gtag && window.gtag('event', type === 'newsletter' ? 'sign_up' : 'generate_lead');
+        window.dataLayer && window.dataLayer.push({ event: type === 'newsletter' ? 'sign_up' : 'generate_lead' });
       };
       // 2. ścieżka zapasowa: przekazanie na e-mail przez FormSubmit (działa także bez PHP)
       var relay = function () {
         if (!cfg.relay || !cfg.email) return Promise.reject(new Error('send-failed'));
         var payload = type === 'newsletter'
-          ? { _subject: 'Nowy zapis do newslettera – KOMpetition.cc', email: data.get('email') || '', imie: data.get('imie') || '' }
+          ? { _subject: data.get('plan') ? 'Nowy lead z ankiety doboru planu – KOMpetition.cc' : 'Nowy zapis do newslettera – KOMpetition.cc', email: data.get('email') || '', imie: data.get('imie') || '', plan: data.get('plan') || '' }
           : { _subject: 'Wiadomość ze strony KOMpetition.cc', imie: data.get('imie') || '', nazwisko: data.get('nazwisko') || '', email: data.get('email') || '', wiadomosc: data.get('wiadomosc') || '' };
         payload._replyto = data.get('email') || ''; payload._template = 'table'; payload._captcha = 'false';
         payload._honey = data.get('website') || ''; payload.strona = location.pathname;
@@ -180,6 +179,7 @@
     });
   }
   $$('form[data-form]').forEach(bindForm);
+  window.KOM_bindForm = bindForm;
 
   /* Popup newslettera */
   (function () {
@@ -223,7 +223,7 @@
       $('.nl-pop__later', w).addEventListener('click', close);
       w.addEventListener('click', function (e) { if (e.target === w) close(); });
       setTimeout(function () { var f = $('#pop-email', w); f && f.focus({ preventScroll: true }); }, 350);
-      window.gtag && window.gtag('event', 'newsletter_popup_view');
+      window.dataLayer && window.dataLayer.push({ event: 'newsletter_popup_view' });
     }
     setTimeout(show, 35000);
     if (/^\/blog\/.+/.test(path)) {

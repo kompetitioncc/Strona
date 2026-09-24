@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   function tyg(n) { n = +n; return n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? ' tygodnie' : n === 1 ? ' tydzień' : ' tygodni'); }
   function track(slug, weeks) {
-    window.gtag && window.gtag('event', 'begin_checkout', { currency: 'PLN', value: SHOP.plans[slug].prices[weeks], items: [{ item_id: slug + '-' + weeks, item_name: SHOP.plans[slug].name }] });
+    window.dataLayer && window.dataLayer.push({ event: 'begin_checkout', currency: 'PLN', value: SHOP.plans[slug].prices[weeks], items: [{ item_id: slug + '-' + weeks, item_name: SHOP.plans[slug].name }] });
   }
 
   /* ---------- strona produktu: warianty ---------- */
@@ -179,11 +179,22 @@ document.addEventListener('DOMContentLoaded', function () {
       html += '<div class="quiz__addon"><b>Start w upale?</b> Dołóż <a href="' + hp.url + '?h=' + r.hours + '">' + esc(hp.name) + '</a> – 5 tygodni, ' + hp.prices['5'] + ' zł. Najlepiej zacząć go 5 tygodni przed startem, równolegle z planem.</div>';
     }
     if (r.alts.length) html += '<p class="quiz__alts">Warto też rozważyć: ' + r.alts.map(function (a) { return '<a href="' + SHOP.plans[a].url + '?w=' + r.weeks + '&h=' + r.hours + '">' + esc(SHOP.plans[a].name) + '</a>'; }).join(' · ') + '</p>';
+    html += '<div class="quiz__lead">' +
+      '<h3>Wyślę Ci ten plan na e-mail</h3>' +
+      '<form class="form" data-form="newsletter" action="/api/newsletter.php" method="post" novalidate>' +
+      '<input type="hidden" name="plan" value="' + esc(p.name + ' – ' + tyg(r.weeks) + ' / ' + SHOP.hoursLabel[r.hours]) + '">' +
+      '<div class="row"><div class="field"><label for="quiz-imie">Imię</label><input id="quiz-imie" name="imie" type="text" autocomplete="given-name"></div>' +
+      '<div class="field"><label for="quiz-email">E-mail *</label><input id="quiz-email" name="email" type="email" autocomplete="email" required></div></div>' +
+      '<label class="consent"><input type="checkbox" name="zgoda" value="1" required><span>Chcę dostać ten plan i newsletter KOMpetition.cc na e-mail. Zgodę mogę wycofać w każdej chwili. Administratorem danych jest Jakub Obitko – szczegóły w <a href="/polityka-prywatnosci/">polityce prywatności</a>.</span></label>' +
+      '<div class="hp" aria-hidden="true"><label>Strona www<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
+      '<div><button class="btn btn--sm" type="submit">Wyślij mi ten plan</button></div><p class="form-status" role="status" aria-live="polite"></p></form></div>';
     html += '<p class="quiz__alts"><button type="button" class="link-arrow" id="quiz-restart">Zacznij od nowa</button> · <a href="#katalog">Przeglądaj wszystkie plany</a></p></div>';
     body.innerHTML = html;
     $('#quiz-buy').addEventListener('click', function () { track(r.slug, r.weeks); });
     $('#quiz-restart').addEventListener('click', function () { start(true); });
-    window.gtag && window.gtag('event', 'quiz_complete', { plan: r.slug, weeks: r.weeks, hours: r.hours });
+    var leadForm = $('.quiz__lead form', body);
+    if (leadForm && window.KOM_bindForm) window.KOM_bindForm(leadForm);
+    window.dataLayer && window.dataLayer.push({ event: 'quiz_complete', plan: r.slug, weeks: r.weeks, hours: r.hours });
   }
 
   function start(scroll) {

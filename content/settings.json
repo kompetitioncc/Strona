@@ -2,7 +2,7 @@
     "email": "kontakt@kompetition.cc",
     "contactEndpoint": "/api/kontakt.php",
     "newsletterEndpoint": "/api/newsletter.php",
-    "ga4Id": "",
+    "gtmId": "GTM-MBTQW9G3",
     "pay_ftp": "",
     "pay_vo2max": "",
     "relay": true,
