@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var p = SHOP.plans[r.slug];
     stepEl.textContent = 'Ostatni krok'; bar.style.width = Math.min(100, (history.length + 1) / ORDER_HINT * 100) + '%'; back.hidden = false;
     body.innerHTML = '<h2 class="quiz__q">Zostaw mi kontakt do siebie</h2>' +
-      '<p class="muted">Na podstawie Twoich odpowiedzi dobrałem konkretny plan. Podaj e-mail, a pokażę Ci go od razu i dodatkowo wyślę na skrzynkę.</p>' +
+      '<p class="muted">Na podstawie Twoich odpowiedzi dobrałem konkretny plan. Podaj e-mail, a pokażę Ci go od razu.</p>' +
       '<form class="form" data-form="newsletter" action="/api/newsletter.php" method="post" novalidate>' +
       '<input type="hidden" name="plan" value="' + esc(p.name + ' – ' + tyg(r.weeks) + ' / ' + SHOP.hoursLabel[r.hours]) + '">' +
       '<div class="row"><div class="field"><label for="quiz-imie">Imię</label><input id="quiz-imie" name="imie" type="text" autocomplete="given-name"></div>' +
