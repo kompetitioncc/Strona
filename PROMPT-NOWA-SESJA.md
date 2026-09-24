@@ -1,4 +1,7 @@
-Kontynuujemy pracę nad nową stroną kompetition.cc (trener kolarstwa Jakub Obitko). Pracuj w folderze `kompetition-site` (rozpakowany z kompetition-site.zip; to repozytorium git z remote https://github.com/kompetitioncc/strona-internetowa.git, gałąź main).
+Kontynuujemy pracę nad nową stroną kompetition.cc (trener kolarstwa Jakub Obitko). Mam plik `kompetition-site.bundle` (git bundle z całą stroną i historią). Najpierw odtwórz z niego repozytorium w wybranym folderze:
+`git clone kompetition-site.bundle kompetition-site && cd kompetition-site && git remote set-url origin https://github.com/kompetitioncc/strona-internetowa.git && git checkout -B main`
+(Jeśli zamiast bundla mam rozpakowany kompetition-site.zip – pracuj w tym folderze.)
+Plik z hasłem panelu (admin/data/auth.json) nie jest w repozytorium – jeśli będę potrzebować panelu /admin na tym komputerze, wygeneruj nowe hasło startowe (bcrypt, prefiks $2y$, must_change: true) i pokaż mi je.
 
 Najpierw przeczytaj PODSUMOWANIE-SESJI.md i README.md w tym folderze – jest tam pełny opis strony, sklepu z planami, panelu /admin i listy rzeczy do zrobienia.
 
