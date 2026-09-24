@@ -225,7 +225,7 @@
       setTimeout(function () { var f = $('#pop-email', w); f && f.focus({ preventScroll: true }); }, 350);
       window.dataLayer && window.dataLayer.push({ event: 'newsletter_popup_view' });
     }
-    setTimeout(show, 35000);
+    setTimeout(show, 5000);
     if (/^\/blog\/.+/.test(path)) {
       window.addEventListener('scroll', function onS() {
         var h = doc.documentElement;
