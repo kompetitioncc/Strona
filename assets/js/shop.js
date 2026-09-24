@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderLead(r) {
     var p = SHOP.plans[r.slug];
     stepEl.textContent = 'Ostatni krok'; bar.style.width = Math.min(100, (history.length + 1) / ORDER_HINT * 100) + '%'; back.hidden = false;
-    body.innerHTML = '<h2 class="quiz__q">Ostatni krok — dokąd wysłać Twój plan?</h2>' +
+    body.innerHTML = '<h2 class="quiz__q">Zostaw mi kontakt do siebie</h2>' +
       '<p class="muted">Na podstawie Twoich odpowiedzi dobrałem konkretny plan. Podaj e-mail, a pokażę Ci go od razu i dodatkowo wyślę na skrzynkę.</p>' +
       '<form class="form" data-form="newsletter" action="/api/newsletter.php" method="post" novalidate>' +
       '<input type="hidden" name="plan" value="' + esc(p.name + ' – ' + tyg(r.weeks) + ' / ' + SHOP.hoursLabel[r.hours]) + '">' +
