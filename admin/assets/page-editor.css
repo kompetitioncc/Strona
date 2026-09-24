@@ -1,0 +1,11 @@
+/* style trybu edycji (tylko w panelu) */
+main [contenteditable="true"]{outline:1px dashed transparent;outline-offset:3px;border-radius:3px;transition:outline-color .15s;cursor:text}
+main [contenteditable="true"]:hover{outline-color:rgba(255,213,0,.9)}
+main [contenteditable="true"]:focus{outline:2px solid #ffd500;background:rgba(255,213,0,.08)}
+main img{cursor:pointer}
+main img:hover{outline:3px solid #ffd500;outline-offset:-3px}
+.kom-tools{position:absolute;z-index:9999;display:flex;gap:6px;background:#0b0b0c;padding:6px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.kom-tools button,.kom-hero-btn{font:600 13px/1 system-ui,sans-serif;border:0;border-radius:6px;padding:9px 12px;background:#ffd500;color:#0b0b0c;cursor:pointer}
+.kom-hero-btn{position:absolute;right:16px;bottom:16px;z-index:5}
+.hdr{position:relative!important}
+.mcta{display:none!important}

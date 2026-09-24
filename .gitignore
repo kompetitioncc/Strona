@@ -1,0 +1,13 @@
+# zależności i build
+node_modules/
+dist/
+# dane lokalne panelu (hasło, próby logowania, status synchronizacji) – nie trafiają do repozytorium
+admin/data/*
+!admin/data/.htaccess
+# kopie zapasowe panelu i zapisy newslettera z serwera PHP
+content/backups/
+api/data/*
+!api/data/.htaccess
+# systemowe
+.DS_Store
+*.tmp*

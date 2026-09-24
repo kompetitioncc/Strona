@@ -1,0 +1,63 @@
+# KOMpetition.cc — konfiguracja Apache (większość polskich hostingów: cyber_Folks, home.pl, nazwa.pl, OVH, LH.pl)
+Options -Indexes
+DirectoryIndex index.html index.php
+ErrorDocument 404 /404.html
+
+# Nie udostępniaj plików pomocniczych
+<FilesMatch "(^README\.md|^_redirects)$">
+  Require all denied
+</FilesMatch>
+AddDefaultCharset UTF-8
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# HTTPS + bez www
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://kompetition.cc%{REQUEST_URI} [L,R=301]
+
+# Stare adresy ze Squarespace -> nowe (301)
+RewriteRule ^home/?$ / [L,R=301]
+RewriteRule ^store/?$ /plany-treningowe/ [L,R=301]
+RewriteRule ^store/p/poprawa-ftp/?$ /plany-treningowe/poprawa-ftp/ [L,R=301]
+RewriteRule ^store/p/poprawa-vo2max/?$ /plany-treningowe/poprawa-vo2max/ [L,R=301]
+RewriteRule ^cpkalck/?$ /cp-kalkulator/ [L,R=301]
+RewriteRule ^ge-calc/?$ /kalkulator-ge/ [L,R=301]
+RewriteRule ^803729628419/?$ /kalkulator-ge/ [L,R=301]
+RewriteRule ^blog/pora-obra-kierunek-dlaczego-cele-ksztatuj-progres-i-chroni-przed-wypaleniem/?$ /blog/cele-treningowe-w-kolarstwie/ [L,R=301]
+RewriteRule ^cart/?$ /plany-treningowe/ [L,R=301]
+
+# Ukośnik na końcu adresów katalogów (/blog -> /blog/)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !/$
+RewriteCond %{REQUEST_FILENAME}/index.html -f
+RewriteRule ^(.*)$ /$1/ [L,R=301]
+</IfModule>
+
+<IfModule mod_headers.c>
+Header always set Strict-Transport-Security "max-age=15552000"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set X-Frame-Options "SAMEORIGIN"
+<FilesMatch "\.(webp|png|jpg|jpeg|ico|woff2|mp4)$">
+Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "\.(css|js)$">
+Header set Cache-Control "public, max-age=604800"
+</FilesMatch>
+<FilesMatch "\.(html|xml|txt)$">
+Header set Cache-Control "public, max-age=600"
+</FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE application/rss+xml application/manifest+json text/html text/css application/javascript text/javascript application/json image/svg+xml application/xml text/plain
+</IfModule>
+
+AddType image/webp .webp
+AddType font/woff2 .woff2
+AddType video/mp4 .mp4
+AddType application/manifest+json .webmanifest
+AddType application/rss+xml .xml
+

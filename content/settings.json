@@ -1,0 +1,9 @@
+{
+    "email": "kontakt@kompetition.cc",
+    "contactEndpoint": "/api/kontakt.php",
+    "newsletterEndpoint": "/api/newsletter.php",
+    "ga4Id": "",
+    "pay_ftp": "",
+    "pay_vo2max": "",
+    "relay": true
+}
