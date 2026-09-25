@@ -195,7 +195,7 @@
         if (!cfg.relay || !cfg.email) return Promise.reject(new Error('send-failed'));
         var payload = type === 'newsletter'
           ? { _subject: data.get('plan') ? 'Nowy lead z ankiety doboru planu – KOMpetition.cc' : 'Nowy zapis do newslettera – KOMpetition.cc', email: data.get('email') || '', imie: data.get('imie') || '', plan: data.get('plan') || '' }
-          : { _subject: 'Wiadomość ze strony KOMpetition.cc', imie: data.get('imie') || '', nazwisko: data.get('nazwisko') || '', email: data.get('email') || '', wiadomosc: data.get('wiadomosc') || '' };
+          : { _subject: data.get('temat') ? data.get('temat') + ' – KOMpetition.cc' : 'Wiadomość ze strony KOMpetition.cc', imie: data.get('imie') || '', nazwisko: data.get('nazwisko') || '', email: data.get('email') || '', wiadomosc: data.get('wiadomosc') || '' };
         payload._replyto = data.get('email') || ''; payload._template = 'table'; payload._captcha = 'false';
         payload._honey = data.get('website') || ''; payload.strona = location.pathname;
         if (data.get('zgoda')) payload.zgoda = 'tak – ' + new Date().toISOString();
