@@ -17,22 +17,16 @@
       "name": "Baza tlenowa",
       "url": "/plany-treningowe/baza-tlenowa/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Fundament, na którym zbudujesz cały sezon: więcej mocy na progu tlenowym i lepsza ekonomia jazdy.",
       "cover": "/assets/img/plan-baza-tlenowa-3-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–3: budowa objętości w strefie 2",
-          "Tyg. 4: odciążenie i test"
-        ],
         "8": [
           "Tyg. 1–3: objętość w strefie 2 + siła na rowerze",
           "Tyg. 4: odciążenie",
@@ -51,23 +45,16 @@
       "name": "Poprawa FTP",
       "url": "/plany-treningowe/poprawa-ftp/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Dla kolarza, który utknął na jednej wartości mocy progowej i chce ją ruszyć z miejsca.",
       "cover": "/assets/img/plan-poprawa-ftp-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1: test CP i wejście w sweet spot",
-          "Tyg. 2–3: sweet spot i próg",
-          "Tyg. 4: odciążenie i test"
-        ],
         "8": [
           "Tyg. 1: test CP",
           "Tyg. 2–3: sweet spot",
@@ -89,22 +76,16 @@
       "name": "Poprawa VO2max",
       "url": "/plany-treningowe/poprawa-vo2max/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Więcej „góry” – mocy na 2–8-minutowych podjazdach i w decydujących akcjach wyścigu.",
       "cover": "/assets/img/plan-poprawa-vo2max-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–3: dwie sesje VO2max tygodniowo",
-          "Tyg. 4: odciążenie i test"
-        ],
         "8": [
           "Tyg. 1–3: 30/15 i 4 × 4 min",
           "Tyg. 4: odciążenie",
@@ -125,22 +106,16 @@
       "name": "Podjazdy i góry",
       "url": "/plany-treningowe/podjazdy/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Moc na długich podjazdach, równe tempo i siła na stromiznach – na wyjazd w góry lub górski wyścig.",
       "cover": "/assets/img/plan-podjazdy-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–3: próg i siła na podjazdach",
-          "Tyg. 4: odciążenie"
-        ],
         "8": [
           "Tyg. 1–3: siła i sweet spot",
           "Tyg. 4: odciążenie",
@@ -159,23 +134,16 @@
       "name": "Maraton MTB",
       "url": "/plany-treningowe/maraton-mtb/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Przygotowanie do maratonów MTB (XCM) – od dystansu mini po giga.",
       "cover": "/assets/img/plan-maraton-mtb-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–2: specyfika wyścigowa",
-          "Tyg. 3: ostatni mocny tydzień",
-          "Tyg. 4: taper i start"
-        ],
         "8": [
           "Tyg. 1–3: próg i zmienne tempo",
           "Tyg. 4: odciążenie",
@@ -194,23 +162,16 @@
       "name": "Wyścig szosowy i Gran Fondo",
       "url": "/plany-treningowe/wyscig-szosowy/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Na amatorskie wyścigi szosowe i Gran Fondo – jazda w grupie, ataki, podjazdy i mocny finisz.",
       "cover": "/assets/img/plan-wyscig-szosowy-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–2: specyfika wyścigowa",
-          "Tyg. 3: ostatni mocny tydzień",
-          "Tyg. 4: taper i start"
-        ],
         "8": [
           "Tyg. 1–3: próg i VO2max",
           "Tyg. 4: odciążenie",
@@ -229,22 +190,16 @@
       "name": "Gravel i ultra",
       "url": "/plany-treningowe/gravel-ultra/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Długie dystanse: gravelowe wyścigi, ultra, bikepacking – równa moc przez wiele godzin.",
       "cover": "/assets/img/plan-gravel-ultra-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–3: długie jazdy i back-to-back",
-          "Tyg. 4: taper i start"
-        ],
         "8": [
           "Tyg. 1–3: objętość i tempo",
           "Tyg. 4: odciążenie",
@@ -263,22 +218,16 @@
       "name": "Jazda na czas i triathlon",
       "url": "/plany-treningowe/czasowka-triathlon/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Równa, wysoka moc przez 20–90 minut – czasówki i rower w triathlonie.",
       "cover": "/assets/img/plan-czasowka-triathlon-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–3: próg i pacing",
-          "Tyg. 4: taper i start"
-        ],
         "8": [
           "Tyg. 1–3: sweet spot i aero",
           "Tyg. 4: odciążenie",
@@ -297,22 +246,16 @@
       "name": "Trenażer – zima",
       "url": "/plany-treningowe/trenazer-zima/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Zimowe przygotowanie w całości na trenażerze – krótkie, skuteczne, strukturalne jednostki.",
       "cover": "/assets/img/plan-trenazer-zima-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–3: sweet spot i tempo",
-          "Tyg. 4: odciążenie i test"
-        ],
         "8": [
           "Tyg. 1–3: baza i tempo",
           "Tyg. 4: odciążenie",
@@ -331,23 +274,16 @@
       "name": "Powrót do formy",
       "url": "/plany-treningowe/powrot-do-formy/",
       "weeks": [
-        4,
         8,
         12
       ],
       "prices": {
-        "4": 250,
-        "8": 450,
-        "12": 600
+        "8": 250,
+        "12": 400
       },
       "tagline": "Bezpieczny powrót po przerwie, chorobie lub kontuzji – i dobry start dla początkujących.",
       "cover": "/assets/img/plan-powrot-do-formy-og-1200.webp",
       "phases": {
-        "4": [
-          "Tyg. 1–2: adaptacja",
-          "Tyg. 3: pierwsze tempo",
-          "Tyg. 4: odciążenie i test"
-        ],
         "8": [
           "Tyg. 1–3: adaptacja i objętość",
           "Tyg. 4: odciążenie",

@@ -87,8 +87,8 @@ document.addEventListener('DOMContentLoaded', function () {
     weeks: { q: function () { return answers.goal === 'start' ? 'Ile czasu zostało do startu?' : 'Jak długi blok treningowy chcesz?'; },
       opts: function () {
         return answers.goal === 'start'
-          ? [['4', 'Mniej niż 5 tygodni', 'krótki blok specyficzny + taper'], ['8', '5–10 tygodni', 'najczęstszy wybór'], ['12', 'Ponad 10 tygodni', 'pełny cykl: baza → specyfika → taper']]
-          : [['4', '4 tygodnie', 'szybki, konkretny bodziec'], ['8', '8 tygodni', 'polecane – dwa pełne bloki'], ['12', '12 tygodni', 'pełny cykl z największym progresem']];
+          ? [['8', 'Do 10 tygodni', 'blok specyficzny + taper'], ['12', 'Ponad 10 tygodni', 'pełny cykl: baza → specyfika → taper']]
+          : [['8', '8 tygodni', 'polecane – dwa pełne bloki'], ['12', '12 tygodni', 'pełny cykl z największym progresem']];
       }, next: function () { return 'hours'; } },
     hours: { q: 'Ile godzin tygodniowo realnie możesz trenować?', opts: [
       ['4-6', '4–6 h', 'np. 3–4 treningi'], ['6-8', '6–8 h', 'np. 4–5 treningów'], ['8-10', '8–10 h', 'np. 5 treningów z długą jazdą'],
