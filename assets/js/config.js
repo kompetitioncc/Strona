@@ -5,6 +5,7 @@ window.KOM_CONFIG = {
     "email": "kontakt@kompetition.cc",
     "relay": true,
     "gtmId": "GTM-MBTQW9G3",
+    "metaPixelId": "825093160017230",
     "paymentLinks": {
         "baza-tlenowa-8": "https://buy.stripe.com/fZu14od4O2C28k948S4sE0Q",
         "baza-tlenowa-12": "https://buy.stripe.com/6oU00k7Kub8ycAp20K4sE0R",

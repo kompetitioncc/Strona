@@ -3,6 +3,7 @@
     "contactEndpoint": "/api/kontakt.php",
     "newsletterEndpoint": "/api/newsletter.php",
     "gtmId": "GTM-MBTQW9G3",
+    "metaPixelId": "825093160017230",
     "pay_ftp": "",
     "pay_vo2max": "",
     "relay": true,

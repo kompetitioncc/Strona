@@ -100,29 +100,73 @@
   var topic = params.get('temat') || (params.get('plan') ? 'Chcę kupić plan: ' + params.get('plan') : '');
   if (topic) { var ta = $('form[data-form="contact"] textarea'); if (ta && !ta.value) ta.value = topic + '\n\n'; }
 
-  /* Statystyki (Google Tag Manager) — dopiero po zgodzie */
-  if (cfg.gtmId) {
-    var KEY = 'kom-analytics-consent';
-    var get = function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
-    var set = function (v) { try { localStorage.setItem(KEY, v); } catch (e) {} };
-    var loadGTM = function () {
+  /* Zgody: statystyki (Google Tag Manager) i marketing (piksel Meta) — nic nie ładuje się bez zgody */
+  var CK = { stat: 'kom-analytics-consent', mkt: 'kom-marketing-consent' };
+  var getC = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  var setC = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
+  var gtmOn = false, fbOn = false, fbQueue = [];
+  var loadGTM = function () {
+    if (!cfg.gtmId || gtmOn) return; gtmOn = true;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+    var s = doc.createElement('script'); s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(cfg.gtmId);
+    doc.head.appendChild(s);
+  };
+  /* Zdarzenia Meta: kolejkowane do chwili zgody; bez zgody nic nie jest wysyłane */
+  window.komFb = function (ev, params) {
+    if (!cfg.metaPixelId) return;
+    if (!fbOn) { fbQueue.push([ev, params]); return; }
+    window.fbq('track', ev, params || {}, { eventID: ev + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) });
+  };
+  var loadPixel = function () {
+    if (!cfg.metaPixelId || fbOn) return;
+    /* eslint-disable */
+    !function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v;
+      s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s); }(window, doc, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    /* eslint-enable */
+    window.fbq('init', cfg.metaPixelId); window.fbq('track', 'PageView'); fbOn = true;
+    fbQueue.splice(0).forEach(function (a) { window.komFb(a[0], a[1]); });
+  };
+  var applyConsent = function () { if (getC(CK.stat) === 'yes') loadGTM(); if (getC(CK.mkt) === 'yes') loadPixel(); };
+  applyConsent();
+  var needStat = cfg.gtmId && !getC(CK.stat), needMkt = cfg.metaPixelId && !getC(CK.mkt);
+  if (needStat || needMkt) {
+    var both = cfg.gtmId && cfg.metaPixelId;
+    var bar = doc.createElement('div');
+    bar.className = 'consent-bar'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', 'Zgoda na pliki cookie');
+    bar.innerHTML = '<p>' + (both
+      ? 'Za Twoją zgodą korzystam z Google Analytics (statystyki odwiedzin) i piksela Meta (pomiar skuteczności reklam na Facebooku i Instagramie). Bez zgody nic z tego się nie włączy. '
+      : cfg.metaPixelId ? 'Za Twoją zgodą korzystam z piksela Meta, żeby mierzyć skuteczność reklam na Facebooku i Instagramie. '
+      : 'Korzystam z Google Analytics, żeby wiedzieć, które treści są przydatne. Włączę statystyki tylko za Twoją zgodą. ')
+      + '<a href="/polityka-prywatnosci/#cookies">Więcej</a></p><div class="consent-btns" style="flex-wrap:wrap"><button class="btn btn--ghost btn--sm" type="button" data-c="none">Odrzuć</button>'
+      + (both ? '<button class="btn btn--ghost btn--sm" type="button" data-c="stat">Tylko statystyki</button>' : '')
+      + '<button class="btn btn--sm" type="button" data-c="all">Akceptuję' + (both ? ' wszystkie' : '') + '</button></div>';
+    bar.addEventListener('click', function (e) {
+      var v = e.target.getAttribute && e.target.getAttribute('data-c'); if (!v) return;
+      setC(CK.stat, v === 'none' ? 'no' : 'yes'); setC(CK.mkt, v === 'all' ? 'yes' : 'no');
+      bar.remove(); applyConsent();
+    });
+    body.appendChild(bar);
+  }
+  /* „Zmień ustawienia cookies” – wycofanie zgody tak samo łatwe jak jej udzielenie */
+  doc.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('[data-consent-reset]'); if (!a) return;
+    e.preventDefault(); try { localStorage.removeItem(CK.stat); localStorage.removeItem(CK.mkt); } catch (e2) {}
+    location.reload();
+  });
+  /* Zakup: strona /dziekuje/ po płatności Stripe */
+  if (/^\/dziekuje\/?$/.test(location.pathname)) {
+    var qp = new URLSearchParams(location.search), pPlan = qp.get('plan'), pW = qp.get('w'), pVal = null, pName = pPlan;
+    try { var SD = JSON.parse(doc.getElementById('shop-data').textContent); if (SD.plans[pPlan]) { pVal = SD.plans[pPlan].prices[pW]; pName = SD.plans[pPlan].name; } } catch (e) {}
+    if (pPlan === 'korekta') { pVal = 100; pName = 'Korekta planu + konsultacja'; }
+    var pKey = 'kom-purchase-' + pPlan + '-' + pW, seen = null;
+    try { seen = sessionStorage.getItem(pKey); sessionStorage.setItem(pKey, '1'); } catch (e) {}
+    if (pPlan && pVal && !seen) {
+      window.komFb('Purchase', { value: pVal, currency: 'PLN', content_ids: [pPlan + (pW ? '-' + pW : '')], content_name: pName, content_type: 'product' });
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
-      var s = doc.createElement('script'); s.async = true;
-      s.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(cfg.gtmId);
-      doc.head.appendChild(s);
-    };
-    var c = get();
-    if (c === 'yes') loadGTM();
-    else if (c !== 'no') {
-      var bar = doc.createElement('div');
-      bar.className = 'consent-bar'; bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', 'Zgoda na statystyki');
-      bar.innerHTML = '<p>Korzystam z Google Analytics, żeby wiedzieć, które treści są przydatne. Włączę statystyki tylko za Twoją zgodą. <a href="/polityka-prywatnosci/">Więcej</a></p><div><button class="btn btn--ghost btn--sm" type="button" data-c="no">Odrzuć</button><button class="btn btn--sm" type="button" data-c="yes">Akceptuję</button></div>';
-      bar.addEventListener('click', function (e) {
-        var v = e.target.getAttribute && e.target.getAttribute('data-c'); if (!v) return;
-        set(v); bar.remove(); if (v === 'yes') loadGTM();
-      });
-      body.appendChild(bar);
+      window.dataLayer.push({ event: 'purchase', currency: 'PLN', value: pVal, items: [{ item_id: pPlan + (pW ? '-' + pW : ''), item_name: pName }] });
     }
   }
 
@@ -142,6 +186,9 @@
         if (type === 'newsletter') { try { localStorage.setItem('kom-nl', 'subscribed'); } catch (e2) {} var pop = form.closest('.nl-pop'); pop && setTimeout(function () { pop.classList.remove('show'); setTimeout(function () { pop.remove(); }, 300); }, 2200); }
         say(type === 'newsletter' ? 'Dziękuję! Jesteś na liście.' : 'Dziękuję! Wiadomość wysłana — odezwę się najszybciej, jak to możliwe.', true);
         window.dataLayer && window.dataLayer.push({ event: type === 'newsletter' ? 'sign_up' : 'generate_lead' });
+        if (type === 'newsletter' && data.get('plan')) window.komFb('Lead', { content_name: 'Ankieta: ' + data.get('plan') });
+        else if (type === 'newsletter') window.komFb('CompleteRegistration', { content_name: 'Newsletter' });
+        else window.komFb('Contact', { content_name: 'Formularz kontaktowy' });
       };
       // 2. ścieżka zapasowa: przekazanie na e-mail przez FormSubmit (działa także bez PHP)
       var relay = function () {

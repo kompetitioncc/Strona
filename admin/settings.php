@@ -5,11 +5,11 @@ $first = !empty(auth_data()['must_change']);
 $ok = $err = null;
 $sfile = CONTENT_DIR . '/settings.json';
 $s = load_json($sfile, []) + ['email' => 'kontakt@kompetition.cc', 'contactEndpoint' => '/api/kontakt.php', 'newsletterEndpoint' => '/api/newsletter.php',
-    'gtmId' => '', 'relay' => true, 'paymentLinks' => []];
+    'gtmId' => '', 'metaPixelId' => '', 'relay' => true, 'paymentLinks' => []];
 $shop = load_json(CONTENT_DIR . '/shop.json', ['plans' => []]);
 
 function write_config(array $s): void {
-    $cfg = ['contactEndpoint' => $s['contactEndpoint'], 'newsletterEndpoint' => $s['newsletterEndpoint'], 'email' => $s['email'], 'relay' => (bool)$s['relay'], 'gtmId' => $s['gtmId'],
+    $cfg = ['contactEndpoint' => $s['contactEndpoint'], 'newsletterEndpoint' => $s['newsletterEndpoint'], 'email' => $s['email'], 'relay' => (bool)$s['relay'], 'gtmId' => $s['gtmId'], 'metaPixelId' => $s['metaPixelId'] ?? '',
         'paymentLinks' => (object)array_filter((array)$s['paymentLinks'])];
     $js = "/* Plik generowany przez panel /admin → Ustawienia. Zmiany wprowadzaj w panelu. */\nwindow.KOM_CONFIG = "
         . json_encode($cfg, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ";\n";
@@ -29,8 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $first = false;
             $ok = 'Hasło zmienione.';
         } elseif (($_POST['action'] ?? '') === 'site') {
-            foreach (['email', 'gtmId', 'contactEndpoint', 'newsletterEndpoint'] as $k) $s[$k] = trim((string)($_POST[$k] ?? ''));
-            $pl = [];
+            foreach (['email', 'gtmId', 'metaPixelId', 'contactEndpoint', 'newsletterEndpoint'] as $k) $s[$k] = trim((string)($_POST[$k] ?? ''));
+            // linki spoza formularza (np. korekta planu) zostają bez zmian
+            $pl = (array)$s['paymentLinks'];
             foreach ((array)($_POST['pay'] ?? []) as $k => $v) {
                 $k = preg_replace('/[^a-z0-9-]/', '', (string)$k); $v = trim((string)$v);
                 if ($v !== '' && !preg_match('~^https://~', $v)) throw new RuntimeException("Link płatności ($k) musi zaczynać się od https://");
@@ -41,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $s['relay'] = !empty($_POST['relay']);
             if (!filter_var($s['email'], FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Podaj poprawny e-mail.');
             if ($s['gtmId'] !== '' && !preg_match('/^GTM-[A-Z0-9]{4,}$/', $s['gtmId'])) throw new RuntimeException('Identyfikator GTM ma postać GTM-XXXXXXX.');
+            if ($s['metaPixelId'] !== '' && !preg_match('/^\d{10,20}$/', $s['metaPixelId'])) throw new RuntimeException('ID piksela Meta to same cyfry (np. 825093160017230).');
             save_json($sfile, $s);
             write_config($s);
             $ok = 'Ustawienia zapisane.';
@@ -68,6 +70,7 @@ layout_start('Ustawienia', 'settings.php');
     <label>E-mail, na który trafiają wiadomości z formularzy<input type="email" name="email" value="<?= h($s['email']) ?>" required></label>
     <label class="check"><input type="checkbox" name="relay" value="1" <?= !empty($s['relay']) ? 'checked' : '' ?>> Zapasowa wysyłka przez FormSubmit, gdy PHP nie odpowie</label>
     <label>Google Tag Manager – identyfikator kontenera <small>(puste = brak statystyk i baneru zgody)</small><input name="gtmId" value="<?= h($s['gtmId']) ?>" placeholder="GTM-XXXXXXX"></label>
+    <label>Piksel Meta – ID <small>(ładuje się tylko po zgodzie marketingowej; puste = brak piksela)</small><input name="metaPixelId" value="<?= h($s['metaPixelId'] ?? '') ?>" placeholder="825093160017230" inputmode="numeric"></label>
     <details<?= array_filter((array)$s['paymentLinks']) ? '' : ' open' ?>><summary>Linki płatności Stripe (<?= count(array_filter((array)$s['paymentLinks'])) ?> ustawionych)</summary>
       <p class="muted small">Najprościej wygenerować je skryptem <code>tools/stripe-setup.mjs</code> (instrukcja w README). Puste pole = przycisk „Kup” prowadzi do formularza kontaktowego.</p>
       <table class="list"><?php foreach ($shop['plans'] as $slug => $pl): foreach ($pl['weeks'] as $w): $k = "$slug-$w"; ?>

@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function tyg(n) { n = +n; return n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? ' tygodnie' : n === 1 ? ' tydzień' : ' tygodni'); }
   function track(slug, weeks) {
     window.dataLayer && window.dataLayer.push({ event: 'begin_checkout', currency: 'PLN', value: SHOP.plans[slug].prices[weeks], items: [{ item_id: slug + '-' + weeks, item_name: SHOP.plans[slug].name }] });
+    window.komFb && window.komFb('InitiateCheckout', { value: SHOP.plans[slug].prices[weeks], currency: 'PLN', content_ids: [slug + '-' + weeks], content_name: SHOP.plans[slug].name, content_type: 'product', num_items: 1 });
   }
 
   /* ---------- strona produktu: warianty ---------- */
@@ -41,6 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (ph && plan.phases[w]) ph.innerHTML = plan.phases[w].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
     };
     buy.addEventListener('change', update);
+    var w0 = $('input[name=weeks]:checked', buy).value;
+    window.komFb && window.komFb('ViewContent', { value: plan.prices[w0], currency: 'PLN', content_ids: [slug + '-' + w0], content_name: plan.name, content_type: 'product' });
     $('#buy-btn').addEventListener('click', function () { track(slug, $('input[name=weeks]:checked', buy).value); });
     update();
   }
