@@ -420,7 +420,7 @@ body = "\n".join([
     p("Sezon się kończy, a w głowie pojawia się pytanie: ile odpocząć, żeby nie stracić wszystkiego, co wypracowałem? Napisałem o tym duży artykuł – z liczbami z badań i tym, jak roztrenowanie rozpisuję swoim podopiecznym."),
     h2("Niepopularna opinia", 26),
     p("W przerwie od treningu forma ucieka najpierw <strong>przez krew</strong>: po 2–4 tygodniach objętość osocza spada o ok. 12%. Co ciekawe, gdy badani mieli przywróconą objętość krwi, ich VO2max wracało niemal do poziomu sprzed przerwy."),
-    p("Dlatego zamiast zmuszać się do trenażera w październiku, polecam <strong>ciepło</strong>: 2–3 razy w tygodniu sauna albo gorąca kąpiel po lekkim ruchu. W badaniu, w którym biegacze przez 3 tygodnie chodzili po treningu do sauny, objętość osocza wzrosła o 7,1%. Zero obciążenia dla nóg i głowy, a „silnik” nie gaśnie."),
+    p("Dlatego zamiast zmuszać się do trenażera w październiku, polecam <strong>ciepło jako osobną jednostkę</strong>: 2–3 razy w tygodniu 20–30 minut sauny albo gorąca kąpiel – bez dokładania treningu, bo w roztrenowaniu przecież nie trenujesz. W badaniu, w którym biegacze przez 3 tygodnie chodzili do sauny, objętość osocza wzrosła o 7,1%. Zero obciążenia dla nóg i głowy, a „silnik” nie gaśnie."),
     h2("Co jeszcze znajdziesz w artykule", 26),
     ul([
         "<strong>Oś czasu detreningu</strong> – co i kiedy tracisz, gdy odpuszczasz.",
