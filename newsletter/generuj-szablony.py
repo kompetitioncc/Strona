@@ -85,7 +85,9 @@ def page(title, preheader, body, campaign):
 
   <!-- TREŚĆ -->
   <tr><td class="card" bgcolor="#ffffff" style="background:#ffffff;border-radius:0 0 18px 18px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 {body}
+    </table>
   </td></tr>
 
   <!-- STOPKA -->
