@@ -415,7 +415,7 @@ c = "roztrenowanie"
 body = "\n".join([
     eyebrow("Nowy wpis · Niepopularna opinia"),
     h1("W roztrenowaniu zamiast trenażera – sauna"),
-    image(f"{IMG}/email/blog-roztrenowanie.jpg", "Roztrenowanie w kolarstwie – nowy wpis na blogu KOMpetition", u("/blog/roztrenowanie-kolarstwo/", c)),
+    image(f"{IMG}/email/wpis-roztrenowanie.jpg", "Roztrenowanie w kolarstwie – nowy wpis na blogu KOMpetition", u("/blog/roztrenowanie-kolarstwo/", c)),
     p(f"<strong>{GREETING}</strong>", 24),
     p("Sezon się kończy, a w głowie pojawia się pytanie: ile odpocząć, żeby nie stracić wszystkiego, co wypracowałem? Napisałem o tym duży artykuł – z liczbami z badań i tym, jak roztrenowanie rozpisuję swoim podopiecznym."),
     h2("Niepopularna opinia", 26),
