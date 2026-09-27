@@ -11,6 +11,8 @@
     "run_worker_first": ["/api/*"]
   },
   // nie kasuj zmiennych ustawionych w panelu Cloudflare przy wdrożeniu
+  // numer listy „Newsletter” w Brevo (nie jest tajny); klucz API tylko jako Secret w panelu Cloudflare
+  "vars": { "BREVO_LIST_ID": "2" },
   "keep_vars": true,
   "observability": { "enabled": true }
 }
