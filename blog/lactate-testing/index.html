@@ -82,7 +82,7 @@
 <p>Nowe artykuły z KOMpedium, gotowe protokoły i pierwszeństwo przy nowych planach. Maksymalnie 2 maile w miesiącu.</p>
 <form action="/api/newsletter.php" class="form" data-form="newsletter" method="post">
 <div class="row">
-<div class="field"><label for="nl-imie">Imię</label><input autocomplete="given-name" id="nl-imie" name="imie" type="text"/></div>
+<div class="field"><label for="nl-imie">Imię *</label><input autocomplete="given-name" id="nl-imie" name="imie" required type="text"/></div>
 <div class="field"><label for="nl-email">E-mail *</label><input autocomplete="email" id="nl-email" name="email" required="" type="email"/></div>
 </div>
 <label class="consent"><input name="zgoda" required="" type="checkbox" value="1"/><span>Chcę otrzymywać newsletter KOMpetition.cc na podany adres e-mail. Zgodę mogę wycofać w każdej chwili. Szczegóły w <a href="/polityka-prywatnosci/">polityce prywatności</a>.</span></label>

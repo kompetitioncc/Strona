@@ -82,6 +82,7 @@ async function newsletter(request, env) {
   const email = String(f.email || '').trim().toLowerCase();
   const name = String(f.imie || '').trim().slice(0, 60);
   if (!EMAIL_RE.test(email) || email.length > 254) return json({ ok: false, error: 'Podaj poprawny adres e-mail.' }, 422);
+  if (name.length < 2) return json({ ok: false, error: 'Podaj swoje imię.' }, 422);
   if (!f.zgoda) return json({ ok: false, error: 'Zaznacz zgodę na otrzymywanie newslettera.' }, 422);
 
   // tolerancja na spacje/cudzysłowy wklejone razem z wartością w panelu Cloudflare

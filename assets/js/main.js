@@ -248,7 +248,7 @@
         '<p>Zapisz się na newsletter i dostawaj wiedzę, którą sam stosuję w pracy z zawodnikami:</p>' +
         '<ul><li>nowe artykuły z KOMpedium – badania przełożone na konkretne treningi</li><li>gotowe protokoły i sesje do wrzucenia w plan</li><li>pierwszeństwo przy nowych planach i wyjazdach treningowych</li></ul>' +
         '<form class="form" data-form="newsletter" action="/api/newsletter.php" method="post" novalidate>' +
-        '<div class="row"><div class="field"><label for="pop-imie">Imię</label><input id="pop-imie" name="imie" type="text" autocomplete="given-name"></div>' +
+        '<div class="row"><div class="field"><label for="pop-imie">Imię *</label><input id="pop-imie" name="imie" type="text" autocomplete="given-name" required></div>' +
         '<div class="field"><label for="pop-email">E-mail *</label><input id="pop-email" name="email" type="email" autocomplete="email" required></div></div>' +
         '<label class="consent"><input type="checkbox" name="zgoda" value="1" required><span>Chcę otrzymywać newsletter KOMpetition.cc na podany adres e-mail. Zgodę mogę wycofać w każdej chwili. Administratorem danych jest Jakub Obitko – szczegóły w <a href="/polityka-prywatnosci/">polityce prywatności</a>.</span></label>' +
         '<div class="hp" aria-hidden="true"><label>Strona www<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>' +
