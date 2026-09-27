@@ -394,6 +394,24 @@ function card_html(array $p, string $htag = 'h3'): string {
     return fill($tpl, post_vars($p, $body, $htag), ['CARD_IMG' => $p['card_img'] ?? '', 'BADGE' => !empty($p['kompedium']) ? '<span class="badge">KOMpedium</span>' : '']);
 }
 
+/** Dane strukturalne FAQPage z sekcji <section class="faq"> (details > summary + .ans) w treści wpisu. */
+function faq_ld(string $body): string {
+    if (stripos($body, 'class="faq"') === false) return '';
+    $x = new DOMXPath(dom_load($body));
+    $items = [];
+    foreach ($x->query('//section[contains(concat(" ", normalize-space(@class), " "), " faq ")]//details') as $d) {
+        $q = $x->query('.//summary', $d)->item(0);
+        $a = $x->query('.//*[contains(concat(" ", normalize-space(@class), " "), " ans ")]', $d)->item(0);
+        if (!$q || !$a) continue;
+        $qt = trim(preg_replace('/\s+/u', ' ', $q->textContent) ?? '');
+        $at = trim(preg_replace('/\s+/u', ' ', $a->textContent) ?? '');
+        if ($qt !== '' && $at !== '') $items[] = ['@type' => 'Question', 'name' => $qt, 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $at]];
+    }
+    if (!$items) return '';
+    $json = json_encode(['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $items], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return "\n" . '<script type="application/ld+json">' . str_replace('</', '<\\/', (string)$json) . '</script>';
+}
+
 function render_post(array $p, array $published, bool $preview = false): string {
     $tpl = (string)file_get_contents(ADMIN_DIR . '/templates/post.html');
     $body = post_body($p['slug']);
@@ -404,6 +422,7 @@ function render_post(array $p, array $published, bool $preview = false): string 
         'COVER' => !empty($p['cover_html']) ? '<div class="post-cover">' . $p['cover_html'] . '</div>' : '',
         'BODY' => $body, 'TOC' => toc_html($toc),
         'RELATED' => implode('', array_map(fn($q) => card_html($q), $related)),
+        'FAQ_LD' => faq_ld($body),
     ];
     $html = fill($tpl, post_vars($p, $body), $raw);
     if ($preview) $html = str_replace('<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">', '<meta name="robots" content="noindex">', $html);
