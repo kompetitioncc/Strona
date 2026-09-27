@@ -3,6 +3,7 @@
 //   BREVO_API_KEY            klucz API Brevo (SMTP & API → API Keys)
 //   BREVO_LIST_ID            numer listy „Newsletter” w Brevo (Contacts → Lists, kolumna ID)
 //   BREVO_DOI_TEMPLATE_ID    opcjonalnie: szablon double opt-in; bez niego zapis jest od razu (zgoda z checkboxa)
+//   BREVO_WELCOME_TEMPLATE_ID szablon maila powitalnego wysyłanego od razu nowej osobie (0 = wyłączone)
 // Bez klucza lub listy Worker zwraca 503, a strona sama przechodzi na zapasowe powiadomienie mailem (FormSubmit).
 
 const NEWSLETTER_PATHS = new Set(['/api/newsletter', '/api/newsletter.php']);
@@ -24,7 +25,7 @@ async function brevo(apiKey, path, payload) {
     headers: { 'api-key': apiKey, 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (r.ok) return { ok: true };
+  if (r.ok) return { ok: true, status: r.status };
   const j = await r.json().catch(() => ({}));
   return { ok: false, status: r.status, code: j.code, message: j.message };
 }
@@ -66,6 +67,17 @@ async function newsletter(request, env) {
   if (!res.ok) {
     console.error('Brevo error', res.status, res.code, res.message);
     return json({ ok: false, error: 'Nie udało się zapisać. Spróbuj ponownie.' }, 502);
+  }
+
+  // mail powitalny od razu – tylko dla nowego kontaktu (201), nie przy ponownym zapisie (204)
+  const welcomeTemplate = Number(env.BREVO_WELCOME_TEMPLATE_ID);
+  if (!doiTemplate && welcomeTemplate && res.status === 201) {
+    const sent = await brevo(apiKey, '/smtp/email', {
+      templateId: welcomeTemplate,
+      to: [name ? { email, name } : { email }],
+      tags: ['powitanie'],
+    });
+    if (!sent.ok) console.error('Brevo welcome error', sent.status, sent.code, sent.message);
   }
   // ankieta doboru planu: kontakt jest w Brevo, ale strona wysyła też powiadomienie mailem z wybranym planem
   return json({ ok: true, relay: Boolean(f.plan) });
