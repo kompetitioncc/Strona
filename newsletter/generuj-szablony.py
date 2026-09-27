@@ -196,7 +196,7 @@ def signature():
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
         <td width="56" valign="middle"><img src="{IMG}/email/jakub-avatar.jpg" width="56" height="56" alt="Jakub Obitko" style="width:56px;height:56px;border-radius:50%;"></td>
         <td valign="middle" class="t-ink" style="padding-left:14px;font:15px/21px {TEXT};color:{INK};">
-          <strong>Kuba Obitko</strong><br>
+          <strong>Jakub Obitko</strong><br>
           <span class="t-muted" style="color:{MUTED};">trener kolarstwa · KOMpetition.cc</span>
         </td>
       </tr></table>
@@ -245,7 +245,7 @@ body = "\n".join([
     eyebrow("Witaj w KOMpetition"),
     h1("Dobrze, że jesteś"),
     p(f"<strong>{GREETING}</strong>", 20),
-    p("Dzięki za zapis. Jestem Kuba i prowadzę KOMpetition: trenuję kolarzy szosowych, gravelowych i MTB, a na blogu rozkładam na czynniki pierwsze to, co naprawdę działa w treningu."),
+    p("Dzięki za zapis. Jestem Jakub i prowadzę KOMpetition: trenuję kolarzy szosowych, gravelowych i MTB, a na blogu rozkładam na czynniki pierwsze to, co naprawdę działa w treningu."),
     p("Co będziesz ode mnie dostawać, maksymalnie kilka razy w miesiącu:"),
     ul([
         "<strong>Wiedzę bez lania wody</strong>: badania, protokoły i liczby, które przekładasz na trening.",
