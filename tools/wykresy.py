@@ -300,6 +300,108 @@ def piramida():
         "Podstawą są energia, węglowodany, białko, nawodnienie i sen; wyżej kofeina; dalej zależnie od celu azotany, beta-alanina, wodorowęglan sodu i kreatyna; potem cierpka wiśnia na regenerację; reszta suplementów zwykle zbędna.")
 
 
+# ================================================================ HEAT TRAINING
+def heat_os_czasu():
+    W, H = 1200, 620
+    b = header("Heat training – kiedy co działa", "Oś czasu adaptacji do ciepła", W)
+    x0, x1 = 300, 1130
+    X = lambda d: x0 + (x1 - x0) * d / 35          # dni 0–35
+    for d in (0, 7, 14, 21, 28, 35):
+        b += f'<line x1="{X(d)}" x2="{X(d)}" y1="150" y2="500" stroke="{LINE}" stroke-width="1.5"/>' + t(X(d), 530, f"{d}", 18, "t", MUTED, "middle")
+    b += t((x0 + x1) / 2, 560, "dni treningu w cieple", 18, "t", MUTED, "middle")
+    rows = [("Osocze, tętno", "niższe HR przy tej samej mocy", 3, 6, SUN_SOFT, INK),
+            ("Pot", "mniej sodu, potem więcej potu", 3, 10, SUN, INK),
+            ("Temperatura głęboka", "niższa w spoczynku i na koniec", 5, 14, SUN_DEEP, WHITE),
+            ("Masa hemoglobiny", "+3–5% – forma także w chłodzie", 21, 35, INK, WHITE)]
+    for i, (n, sub, a, c, col, fc) in enumerate(rows):
+        y = 168 + i * 82
+        b += t(56, y + 26, n, 23, "h") + t(56, y + 52, sub, 16, "t", MUTED)
+        b += f'<rect x="{X(a)}" y="{y+6}" width="{X(c)-X(a)}" height="44" rx="22" fill="{col}"/>'
+        lab = f"dni {a}–{c}" if c <= 14 else "tyg. 3–5"
+        b += t((X(a) + X(c)) / 2, y + 36, lab, 20, "h", fc, "middle")
+    b += footer("Dane: Klous i wsp. 2020; Tyler i wsp. 2016; Rønnestad i wsp. 2020; Lundby i wsp. 2023; Cubel i wsp. 2024.", W, H)
+    svg("heat-os-czasu-adaptacji", W, H, b, "Oś czasu adaptacji do ciepła",
+        "Objętość osocza i spadek tętna w dniach 3–6, zmiany potu w dniach 3–10, niższa temperatura głęboka w dniach 5–14, wzrost masy hemoglobiny o 3–5% po 3–5 tygodniach.")
+
+
+# ================================================================ GROSS EFFICIENCY
+def ge_porownanie():
+    W, H = 1200, 640
+    b = header("Gross Efficiency w liczbach", "Ta sama energia, inna moc na pedałach", W)
+    kcal = 1075                                       # ≈ 1250 W mocy metabolicznej przez godzinę
+    rows = [("GE 18%", 225, LINE, INK), ("GE 20%", 250, SUN, INK), ("GE 22%", 275, INK, WHITE)]
+    x0, sc = 260, 3.2
+    for i, (lab, w, col, fc) in enumerate(rows):
+        y = 180 + i * 104
+        b += t(56, y + 44, lab, 34, "h")
+        b += f'<rect x="{x0}" y="{y}" width="{w*sc}" height="64" rx="12" fill="{col}"/>'
+        b += t(x0 + w * sc - 20, y + 43, f"{w} W", 30, "h", fc, "end")
+    b += t(x0, 160, f"Kolarz spala ok. {kcal} kcal na godzinę (moc metaboliczna ok. 1250 W)", 19, "t b", INK2)
+    b += (f'<rect x="56" y="{H-150}" width="{W-112}" height="64" rx="12" fill="{SUN_SOFT}"/>' +
+          t(80, H - 110, "+2 punkty procentowe GE = ok. +25 W przy tym samym koszcie energii", 22, "t b", INK) )
+    b += footer("GE = moc mechaniczna / wydatek energetyczny × 100. Typowo 18–23% (Moseley i Jeukendrup 2001).", W, H)
+    svg("ge-ta-sama-energia", W, H, b, "Gross Efficiency – ta sama energia, inna moc",
+        "Przy tym samym wydatku energii ok. 1250 W mocy metabolicznej kolarz z GE 18% generuje 225 W, z GE 20% 250 W, a z GE 22% 275 W.")
+
+
+# ================================================================ LAKTAT
+def krzywa_mleczanowa():
+    W, H = 1200, 680
+    b = header("Test laktatowy", "Krzywa mleczanowa, LT1 i LT2", W)
+    x0, x1, y0, y1 = 130, 1120, 560, 150
+    X = lambda w: x0 + (x1 - x0) * (w - 100) / 300   # 100–400 W
+    Y = lambda l: y0 - (y0 - y1) * l / 10             # 0–10 mmol/l
+    lt1, lt2 = 205, 290
+    b += f'<rect x="{x0}" y="{y1}" width="{X(lt1)-x0}" height="{y0-y1}" fill="{SAND}"/>'
+    b += f'<rect x="{X(lt1)}" y="{y1}" width="{X(lt2)-X(lt1)}" height="{y0-y1}" fill="{SUN_SOFT}"/>'
+    b += f'<rect x="{X(lt2)}" y="{y1}" width="{x1-X(lt2)}" height="{y0-y1}" fill="#ffe7e0"/>'
+    for l in (0, 2, 4, 6, 8, 10):
+        b += f'<line x1="{x0}" x2="{x1}" y1="{Y(l)}" y2="{Y(l)}" stroke="{LINE}" stroke-width="1.5"/>' + t(x0 - 14, Y(l) + 7, str(l), 18, "t", MUTED, "end")
+    for w in range(100, 401, 50):
+        b += t(X(w), y0 + 34, str(w), 18, "t", MUTED, "middle")
+    b += t((x0 + x1) / 2, y0 + 66, "moc [W]", 18, "t", MUTED, "middle") + t(x0 - 14, y1 - 22, "mmol/l", 18, "t b", MUTED, "end")
+    import math
+    pts = [(w, 1.0 + 0.0 * w if w < 190 else 1.0 + 0.9 * math.exp((w - 250) / 38) - 0.9 * math.exp((190 - 250) / 38)) for w in range(100, 341, 5)]
+    pts = [(w, min(l, 10)) for w, l in pts]
+    b += f'<polyline points="{" ".join(f"{X(w):.1f},{Y(l):.1f}" for w, l in pts)}" fill="none" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/>'
+    for w, l in [(w, l) for w, l in pts if w % 25 == 0]:
+        b += f'<circle cx="{X(w):.1f}" cy="{Y(l):.1f}" r="7" fill="{SUN}" stroke="{INK}" stroke-width="2.5"/>'
+    for w, name, sub in ((lt1, "LT1", "pierwszy wzrost ponad spoczynek"), (lt2, "LT2", "szybki wzrost, okolice MLSS")):
+        b += f'<line x1="{X(w)}" x2="{X(w)}" y1="{y1}" y2="{y0}" stroke="{INK}" stroke-width="2" stroke-dasharray="6 6"/>'
+        if w == lt1:
+            b += t(X(w) + 12, y1 + 34, name, 30, "h") + t(X(w) + 12, y1 + 60, sub, 16, "t", INK2)
+        else:
+            b += t(x1 - 14, y1 + 124, name + " ≈ 290 W", 30, "h", INK, "end") + t(x1 - 14, y1 + 150, sub, 16, "t", INK2, "end")
+    b += t((x0 + X(lt1)) / 2, y0 - 20, "Strefa 1", 20, "h", INK2, "middle") + t((X(lt1) + X(lt2)) / 2, y0 - 20, "Strefa 2", 20, "h", SUN_DEEP, "middle") + t((X(lt2) + x1) / 2, y0 - 20, "Strefa 3", 20, "h", "#b3261e", "middle")
+    b += footer("Przykładowa krzywa kolarza z FTP ok. 290 W. Model 3 stref: Seiler 2010; Faude i wsp. 2009.", W, H)
+    svg("laktat-krzywa-lt1-lt2", W, H, b, "Krzywa mleczanowa z LT1 i LT2",
+        "Stężenie mleczanu jest stałe do ok. 200 W (LT1), potem rośnie, a powyżej ok. 290 W (LT2) gwałtownie przyspiesza; progi dzielą intensywność na trzy strefy.")
+
+
+# ================================================================ CELE
+def cele_hierarchia():
+    W, H = 1200, 600
+    b = header("Wyznaczanie celów", "Od celu wynikowego do codziennego treningu", W)
+    cols = [("Wynikowy", "np. top 10 w Gran Fondo", "zależy też od rywali i pogody", INK, WHITE),
+            ("Wykonawczy", "np. FTP 4,0 W/kg, CP +15 W", "mierzalny, w Twojej kontroli", SUN_DEEP, WHITE),
+            ("Procesowy", "np. 2 × interwały tygodniowo,", "sen 8 h, 80 g węgli/h na długich", SUN, INK)]
+    cw, gap = 330, 45
+    for i, (n, a, c, col, fc) in enumerate(cols):
+        x = 56 + i * (cw + gap)
+        b += f'<rect x="{x}" y="170" width="{cw}" height="230" rx="18" fill="{col}"/>'
+        b += t(x + 26, 222, f"Cel {n}".upper() if False else n, 34, "h", fc) + t(x + 26, 290, a, 19, "t b", fc) + t(x + 26, 320, c, 18, "t", fc)
+        b += t(x + 26, 375, ["sezon", "8–12 tygodni", "każdy tydzień"][i], 18, "k", fc)
+        if i < 2:
+            ax = x + cw + 6
+            b += f'<path d="M{ax} 285 h{gap-14}" stroke="{INK}" stroke-width="4"/><path d="M{ax+gap-18} 275 l12 10 l-12 10" fill="none" stroke="{INK}" stroke-width="4"/>'
+    b += (f'<rect x="56" y="430" width="{W-112}" height="64" rx="12" fill="{SAND}"/>' +
+          t(80, 470, "Starty A / B / C: 1–3 starty A na sezon, B jako sprawdzian, C jako trening pod obciążeniem", 20, "t b", INK))
+    b += footer("Cel wynikowy wyznacza kierunek, wykonawczy – plan, procesowy – codzienność.", W, H)
+    svg("cele-hierarchia", W, H, b, "Hierarchia celów treningowych",
+        "Cel wynikowy na sezon, cel wykonawczy na 8–12 tygodni i cele procesowe na każdy tydzień; starty dzielone na priorytety A, B i C.")
+
+
 if __name__ == "__main__":
     detrening(); minimalna_dawka(); sezon()
     wegle_na_godzine(); wegle_dziennie(); glukoza_fruktoza(); dzien_wyscigu(); piramida()
+    heat_os_czasu(); ge_porownanie(); krzywa_mleczanowa(); cele_hierarchia()

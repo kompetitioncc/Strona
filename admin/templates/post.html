@@ -65,6 +65,20 @@
       <div class="prose" itemprop="articleBody">
 <!--BODY-->{{{BODY}}}<!--/BODY-->
         <div class="author"><img src="/assets/img/jakub-obitko-portret-avatar-200.webp" alt="Jakub Obitko" width="88" height="88" loading="lazy"><div><strong>Jakub Obitko</strong><p>Trener kolarstwa, certyfikowany CORE Coach i zawodnik startujący w wyścigach UCI. Łączę praktykę wyścigową z fizjologią wysiłku. <a href="/o-mnie/">Więcej o mnie</a></p></div></div>
+        <aside class="nl" aria-labelledby="nl-h">
+  <h2 id="nl-h">Zapisz się do newslettera</h2>
+  <p>Nowe artykuły z KOMpedium, gotowe protokoły i pierwszeństwo przy nowych planach. Maksymalnie 2 maile w miesiącu.</p>
+  <form class="form" data-form="newsletter" action="/api/newsletter.php" method="post">
+    <div class="row">
+      <div class="field"><label for="nl-imie">Imię *</label><input id="nl-imie" name="imie" type="text" autocomplete="given-name" required></div>
+      <div class="field"><label for="nl-email">E-mail *</label><input id="nl-email" name="email" type="email" autocomplete="email" required></div>
+    </div>
+    <label class="consent"><input type="checkbox" name="zgoda" value="1" required><span>Chcę otrzymywać newsletter KOMpetition.cc na podany adres e-mail. Zgodę mogę wycofać w każdej chwili. Szczegóły w <a href="/polityka-prywatnosci/">polityce prywatności</a>.</span></label>
+    <div class="hp" aria-hidden="true"><label>Strona www<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+    <div><button class="btn" type="submit">Zapisz mnie</button></div>
+    <p class="form-status" role="status" aria-live="polite"></p>
+  </form>
+</aside>
       </div>
       {{{TOC}}}
     </div>
