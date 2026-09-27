@@ -78,8 +78,9 @@ def page(title, preheader, body, campaign):
   </td></tr>
 
   <!-- NAGŁÓWEK -->
-  <tr><td align="center" bgcolor="{INK}" style="background:{INK};padding:28px 24px 24px;border-radius:18px 18px 0 0;">
-    <a href="{u('/', campaign)}" target="_blank"><img src="{IMG}/email/logo-white.png" width="150" alt="KOMpetition.cc" style="width:150px;max-width:150px;color:#ffffff;font:800 22px {DISPLAY};"></a>
+  <!-- tło jako gradient + logo z wbudowanym czarnym tłem: Gmail w trybie ciemnym nie odwraca ani jednego, ani drugiego -->
+  <tr><td align="center" bgcolor="{INK}" style="background-color:{INK};background-image:linear-gradient({INK},{INK});padding:18px 24px 14px;border-radius:18px 18px 0 0;">
+    <a href="{u('/', campaign)}" target="_blank"><img src="{IMG}/email/logo-header.png" width="170" alt="KOMpetition.cc" style="width:170px;max-width:170px;background:{INK};color:#ffffff;font:800 22px {DISPLAY};"></a>
   </td></tr>
   <tr><td height="4" bgcolor="{SUN}" style="background:{SUN};font-size:0;line-height:0;">&nbsp;</td></tr>
 
@@ -229,7 +230,7 @@ def article_row(img, title, desc, href):
 
 def dark_band(title, text, btn_text, href):
     return f'''    <tr><td class="px" style="padding:32px 40px 0;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{INK}" style="background:{INK};border-radius:14px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{INK}" style="background-color:{INK};background-image:linear-gradient({INK},{INK});border-radius:14px;">
         <tr><td style="padding:26px 26px 8px;font:800 26px/27px {DISPLAY};text-transform:uppercase;color:#ffffff;">{title}</td></tr>
         <tr><td style="padding:0 26px;font:15px/23px {TEXT};color:#d9d9dc;">{text}</td></tr>
         <tr><td style="padding:18px 26px 26px;">
