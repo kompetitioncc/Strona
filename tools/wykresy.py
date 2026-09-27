@@ -20,19 +20,23 @@ SUN_SOFT = "#fff3b0"
 
 # ---------------------------------------------------------------- fonty
 def font_face(family, files, weight, text):
-    """Łączy podzbiory latin + latin-ext w jeden font z samymi użytymi znakami."""
-    chars = set(text) | set(" 0123456789")
-    out = []
+    """Przycina font do użytych znaków. Podstawowe znaki bierze wyłącznie z pierwszego pliku (latin),
+    z drugiego (latin-ext) tylko te, których brakuje – z rozłącznym unicode-range, żeby się nie nakładały."""
+    # napisy w stylu .h/.k mają text-transform:uppercase – font musi mieć też wielkie odpowiedniki liter
+    chars = set(text) | set(text.upper()) | set(" 0123456789")
+    out, taken = [], set()
     for f in files:
         opts = subset.Options(); opts.flavor = "woff2"; opts.layout_features = ["kern", "liga"]; opts.name_IDs = []; opts.notdef_outline = True
         font = TTFont(FONTS / f)
         cmap = font.getBestCmap()
-        uni = [ord(c) for c in chars if ord(c) in cmap]
+        uni = sorted(ord(c) for c in chars if ord(c) in cmap and ord(c) not in taken)
         if not uni:
             continue
+        taken.update(uni)
         s = subset.Subsetter(opts); s.populate(unicodes=uni); s.subset(font)
         buf = io.BytesIO(); font.flavor = "woff2"; font.save(buf)
-        out.append(f"@font-face{{font-family:'{family}';font-weight:{weight};src:url(data:font/woff2;base64,{base64.b64encode(buf.getvalue()).decode()}) format('woff2')}}")
+        rng = ",".join(f"U+{u:04X}" for u in uni)
+        out.append(f"@font-face{{font-family:'{family}';font-weight:{weight};unicode-range:{rng};src:url(data:font/woff2;base64,{base64.b64encode(buf.getvalue()).decode()}) format('woff2')}}")
     return "".join(out)
 
 
