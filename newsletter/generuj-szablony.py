@@ -103,7 +103,7 @@ def page(title, preheader, body, campaign):
     <a href="{{{{ update_profile }}}}" style="color:{MUTED};">Zmień dane</a>
     &nbsp;·&nbsp;
     <a href="{u('/polityka-prywatnosci/', campaign)}" style="color:{MUTED};">Polityka prywatności</a><br>
-    KOMpetition.cc · Jakub Obitko · [ADRES DO KORESPONDENCJI] · <a href="mailto:kontakt@kompetition.cc" style="color:{MUTED};">kontakt@kompetition.cc</a>
+    KOMpetition.cc · Jakub Obitko · ul. Hoffmanowej 6b/10, 30-419 Kraków · <a href="mailto:kontakt@kompetition.cc" style="color:{MUTED};">kontakt@kompetition.cc</a>
   </td></tr>
 
 </table>

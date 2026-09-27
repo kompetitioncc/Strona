@@ -11,7 +11,7 @@ Grafiki są ładowane z `https://kompetition.cc/assets/email/` i `/assets/og/`, 
 Możesz też wgrać je do biblioteki obrazów w Brevo i podmienić adresy.
 
 ## Przed pierwszym wysłaniem
-1. W każdym pliku w stopce podmień `[ADRES DO KORESPONDENCJI]`. Brevo i przepisy wymagają adresu nadawcy.
+1. Adres w stopce pochodzi z konta Brevo (ul. Hoffmanowej 6b/10, Kraków); zmiana w `generuj-szablony.py`.
 2. **Stripe → Produkty → Kupony**: utwórz kupon −10%, a w nim kod promocyjny `WITAJ10`
    (np. limit 1 użycia na klienta, ważność wg uznania). W każdym Payment Linku włącz **„Allow promotion codes”**.
    Jeśli wybierzesz inny kod, zmień `WITAJ10` w szablonach 01–03.
