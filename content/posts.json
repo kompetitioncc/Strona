@@ -111,7 +111,7 @@
         "desc": "Roztrenowanie po sezonie: ile trwa, ile formy tracisz (dane z badań), jak ją utrzymać minimalną dawką treningu i przykładowy plan na 3 tygodnie.",
         "short": "Roztrenowanie",
         "date": "2026-09-27T21:00",
-        "updated": "2026-09-27T21:00",
+        "updated": "2026-09-27T21:43",
         "kompedium": false,
         "og": "/assets/og/blog-roztrenowanie-kolarstwo.jpg?v=20260927211205",
         "cover_html": "<img src=\"/assets/uploads/covers/roztrenowanie-kolarstwo-20260927211204-1200.webp\" srcset=\"/assets/uploads/covers/roztrenowanie-kolarstwo-20260927211204-480.webp 480w, /assets/uploads/covers/roztrenowanie-kolarstwo-20260927211204-800.webp 800w, /assets/uploads/covers/roztrenowanie-kolarstwo-20260927211204-1200.webp 1200w, /assets/uploads/covers/roztrenowanie-kolarstwo-20260927211204-1600.webp 1600w\" sizes=\"(min-width:1240px) 1130px, 100vw\" width=\"1600\" height=\"800\" alt=\"Górska droga we mgle – okres przejściowy i odpoczynek po sezonie kolarskim\" fetchpriority=\"high\" decoding=\"async\">",
@@ -126,12 +126,12 @@
         "desc": "Ile węglowodanów na godzinę, ile białka, jak pić i co jeść przed wyścigiem? Do tego suplementy z dowodami: kofeina, azotany, beta-alanina – dawki z badań.",
         "short": "Żywienie i suplementacja",
         "date": "2026-09-27T21:05",
-        "updated": "2026-09-27T21:05",
+        "updated": "2026-09-27T21:43",
         "kompedium": true,
-        "og": "/assets/og/blog-zywienie-i-suplementacja-kolarza-kompedium.jpg?v=20260927211232",
-        "cover_html": "<img src=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-1200.webp\" srcset=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-480.webp 480w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-800.webp 800w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-1200.webp 1200w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-1600.webp 1600w\" sizes=\"(min-width:1240px) 1130px, 100vw\" width=\"1600\" height=\"800\" alt=\"Kolarz na długim treningu na górskiej drodze – żywienie i nawodnienie na rowerze\" fetchpriority=\"high\" decoding=\"async\">",
-        "card_img": "<img src=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-karta-800.webp\" srcset=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-karta-480.webp 480w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
-        "cover_main": "/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927211205-1600.webp",
-        "cover_alt": "Kolarz na długim treningu na górskiej drodze – żywienie i nawodnienie na rowerze"
+        "og": "/assets/og/blog-zywienie-i-suplementacja-kolarza-kompedium.jpg?v=20260927214323",
+        "cover_html": "<img src=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-1200.webp\" srcset=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-480.webp 480w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-800.webp 800w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-1200.webp 1200w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-1600.webp 1600w\" sizes=\"(min-width:1240px) 1130px, 100vw\" width=\"1600\" height=\"800\" alt=\"Kolarz w kasku i okularach pije z bidonu podczas jazdy (fot. Viktor Bystrov / Unsplash)\" fetchpriority=\"high\" decoding=\"async\">",
+        "card_img": "<img src=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-karta-800.webp\" srcset=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-karta-480.webp 480w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+        "cover_main": "/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-1600.webp",
+        "cover_alt": "Kolarz w kasku i okularach pije z bidonu podczas jazdy (fot. Viktor Bystrov / Unsplash)"
     }
 ]

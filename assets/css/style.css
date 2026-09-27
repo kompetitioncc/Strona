@@ -507,3 +507,9 @@ body.nav-open .mcta{display:none}
 .shop-hero h1{font-size:clamp(2.6rem,1.8rem + 3.6vw,4.6rem)}
 .shop-hero .split{align-items:start}
 @media (min-width:901px){.shop-hero .quiz{position:sticky;top:100px}}
+
+/* wykresy SVG we wpisach: na telefonie szersze, przewijane w bok, dotknięcie otwiera pełny rozmiar */
+.prose figure.chart a{display:block}
+.prose figure.chart img{border-radius:var(--r-sm);box-shadow:0 0 0 1px var(--line)}
+.chart-hint{display:none}
+@media (max-width:640px){.prose figure.chart>a{overflow-x:auto;-webkit-overflow-scrolling:touch}.prose figure.chart img{width:720px;max-width:none;height:auto}.chart-hint{display:inline;color:var(--muted)}}
