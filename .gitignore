@@ -11,3 +11,5 @@ api/data/*
 # systemowe
 .DS_Store
 *.tmp*
+# podgląd szablonów maili z lokalnymi grafikami
+newsletter/_podglad/

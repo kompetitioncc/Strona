@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 rm -rf dist && mkdir dist
-tar --exclude='./dist' --exclude='./admin' --exclude='./api' --exclude='./content' --exclude='./tools' \
+tar --exclude='./dist' --exclude='./admin' --exclude='./api' --exclude='./content' --exclude='./tools' --exclude='./newsletter' --exclude='./worker.js' --exclude='./wrangler.jsonc' \
     --exclude='./node_modules' --exclude='./.git' --exclude='./.github' --exclude='*.md' --exclude='.htaccess' \
     --exclude='package.json' --exclude='package-lock.json' --exclude='.gitignore' --exclude='.DS_Store' \
     -cf - . | tar -xf - -C dist

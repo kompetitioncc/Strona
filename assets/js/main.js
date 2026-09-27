@@ -207,7 +207,7 @@
       fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } })
         .then(function (r) { return r.json().catch(function () { return null; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
         .then(function (res) {
-          if (res.ok && res.j && res.j.ok !== false) return done();
+          if (res.ok && res.j && res.j.ok !== false) return res.j.relay ? relay().then(done, done) : done();
           // błąd walidacji z naszego skryptu (np. zły e-mail) – pokaż go, nie przekierowuj
           if (res.j && res.j.error && (res.status === 422 || res.status === 429)) { var ve = new Error(res.j.error); ve.validation = true; throw ve; }
           return relay().then(done);

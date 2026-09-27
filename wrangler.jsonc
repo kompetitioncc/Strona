@@ -1,9 +1,16 @@
 {
   "name": "kompetitioncc",
   "compatibility_date": "2026-09-24",
+  // worker.js: zapis na newsletter (/api/newsletter.php → Brevo), reszta to statyczna strona z dist/
+  "main": "worker.js",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash"
-  }
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*"]
+  },
+  // nie kasuj zmiennych ustawionych w panelu Cloudflare przy wdrożeniu
+  "keep_vars": true,
+  "observability": { "enabled": true }
 }
