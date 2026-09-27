@@ -8,7 +8,7 @@ SITE = "https://kompetition.cc"
 IMG = SITE + "/assets"
 UTM = "utm_source=newsletter&utm_medium=email&utm_campaign="
 
-INK, SAND, LINE, MUTED, SUN = "#0b0b0c", "#f4f2ec", "#e4e1d8", "#5b5b60", "#ffd500"
+INK, SAND, LINE, MUTED, SUN, SUN_DEEP = "#0b0b0c", "#f4f2ec", "#e4e1d8", "#5b5b60", "#ffd500", "#c9a800"
 DISPLAY = "'Barlow Condensed','Arial Narrow',Arial,sans-serif"
 TEXT = "Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif"
 
@@ -239,6 +239,42 @@ def dark_band(title, text, btn_text, href):
     </td></tr>'''
 
 
+def raw(t):
+    """Znacznik szablonu Brevo między wierszami tabeli (Brevo usuwa go przy renderowaniu)."""
+    return "    " + t
+
+
+def plan_card():
+    """Karta planu polecanego w ankiecie doboru – wypełniana parametrami params.PLAN_* z Workera."""
+    return f'''    <tr><td class="px" style="padding:26px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="box" style="background:{SAND};border:1px solid {LINE};border-radius:14px;">
+        <tr><td style="padding:0;">
+          <a href="{{{{ params.PLAN_URL }}}}" target="_blank"><img src="{{{{ params.PLAN_IMG }}}}" width="520" alt="{{{{ params.PLAN_NAME }}}}" style="width:100%;max-width:520px;border-radius:14px 14px 0 0;"></a>
+        </td></tr>
+        <tr><td style="padding:22px 24px 0;">
+          <div class="t-muted" style="font:600 13px/16px {DISPLAY};letter-spacing:2px;text-transform:uppercase;color:{MUTED};">Twój plan z ankiety doboru</div>
+          <div class="t-ink" style="padding-top:6px;font:800 32px/32px {DISPLAY};text-transform:uppercase;color:{INK};">{{{{ params.PLAN_NAME }}}}</div>
+          <div class="t-ink" style="padding-top:8px;font:700 15px/22px {TEXT};color:{INK};">{{{{ params.PLAN_VARIANT }}}}</div>
+          <div class="t-ink" style="padding-top:10px;font:15px/23px {TEXT};color:{INK};">{{{{ params.PLAN_TAGLINE }}}}</div>
+        </td></tr>
+        <tr><td style="padding:14px 24px 0;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            {{% for faza in params.PLAN_PHASES %}}<tr><td valign="top" width="20" style="padding:4px 0;font:800 16px/22px {DISPLAY};color:{SUN_DEEP};">■</td><td class="t-ink" style="padding:4px 0;font:14px/22px {TEXT};color:{INK};">{{{{ faza }}}}</td></tr>{{% endfor %}}
+          </table>
+        </td></tr>
+        <tr><td style="padding:18px 24px 0;font:15px/22px {TEXT};" class="t-ink">
+          <span class="t-muted" style="color:{MUTED};text-decoration:line-through;">{{{{ params.PLAN_PRICE }}}} zł</span>
+          &nbsp;<strong style="font:800 30px/30px {DISPLAY};color:{INK};">{{{{ params.PLAN_PRICE_CODE }}}} zł</strong>
+          &nbsp;<span class="t-muted" style="color:{MUTED};">z kodem WITAJ10</span>
+        </td></tr>
+        <tr><td style="padding:18px 24px 24px;">
+          <a href="{{{{ params.PLAN_BUY }}}}" target="_blank" style="display:inline-block;padding:14px 26px;border-radius:999px;background:{SUN};color:{INK};font:700 15px/18px {TEXT};text-decoration:none;">Kupuję z rabatem &rarr;</a>
+          &nbsp; <a href="{{{{ params.PLAN_URL }}}}" target="_blank" class="t-ink" style="font:700 14px/18px {TEXT};color:{INK};text-decoration:none;border-bottom:2px solid {SUN};">Szczegóły planu</a>
+        </td></tr>
+      </table>
+    </td></tr>'''
+
+
 # ---------- 1. POWITANIE ----------
 c = "powitanie"
 body = "\n".join([
@@ -246,6 +282,10 @@ body = "\n".join([
     h1("Dobrze, że jesteś"),
     p(f"<strong>{GREETING}</strong>", 20),
     p("Dzięki za zapis. Jestem Jakub i prowadzę KOMpetition: trenuję kolarzy szosowych, gravelowych i MTB, a na blogu rozkładam na czynniki pierwsze to, co naprawdę działa w treningu."),
+    raw("{% if params.PLAN_NAME %}"),
+    p("Obiecany plan z ankiety doboru jest poniżej. Wybrałem go na podstawie Twojego celu, doświadczenia i czasu, który masz na trening."),
+    plan_card(),
+    raw("{% endif %}"),
     p("Co będziesz ode mnie dostawać, maksymalnie kilka razy w miesiącu:"),
     ul([
         "<strong>Wiedzę bez lania wody</strong>: badania, protokoły i liczby, które przekładasz na trening.",
@@ -253,7 +293,9 @@ body = "\n".join([
         "<strong>Rabaty tylko dla subskrybentów</strong>: pierwszy masz już poniżej.",
     ]),
     code_box("WITAJ10", "Twój kod: −10% na pierwszy plan", "Wpisz go przy płatności · ważny 14 dni"),
+    raw("{% if params.PLAN_NAME %}{% else %}"),
     button("Wybierz plan treningowy", u("/plany-treningowe/", c)),
+    raw("{% endif %}"),
     divider(),
     h2("Od czego zacząć?"),
     p(f'Najlepiej od <a href="{u("/blog/kompedium-slownik-treningowy/", c)}" style="color:{INK};font-weight:700;">KOMpedium</a>, czyli słownika treningowego: FTP, CP, W\', strefy, makrocykle. Wszystko w jednym miejscu.'),

@@ -176,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<p class="muted">Na podstawie Twoich odpowiedzi dobrałem konkretny plan. Podaj e-mail, a pokażę Ci go od razu.</p>' +
       '<form class="form" data-form="newsletter" action="/api/newsletter.php" method="post" novalidate>' +
       '<input type="hidden" name="plan" value="' + esc(p.name + ' – ' + tyg(r.weeks) + ' / ' + SHOP.hoursLabel[r.hours]) + '">' +
+      '<input type="hidden" name="plan_slug" value="' + esc(r.slug) + '"><input type="hidden" name="plan_weeks" value="' + esc(r.weeks) + '"><input type="hidden" name="plan_hours" value="' + esc(r.hours) + '">' +
       '<div class="row"><div class="field"><label for="quiz-imie">Imię</label><input id="quiz-imie" name="imie" type="text" autocomplete="given-name"></div>' +
       '<div class="field"><label for="quiz-email">E-mail *</label><input id="quiz-email" name="email" type="email" autocomplete="email" required></div></div>' +
       '<label class="consent"><input type="checkbox" name="zgoda" value="1" required><span>Chcę dostać ten plan i newsletter KOMpetition.cc na e-mail. Zgodę mogę wycofać w każdej chwili. Administratorem danych jest Jakub Obitko – szczegóły w <a href="/polityka-prywatnosci/">polityce prywatności</a>.</span></label>' +

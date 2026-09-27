@@ -30,6 +30,43 @@ async function brevo(apiKey, path, payload) {
   return { ok: false, status: r.status, code: j.code, message: j.message };
 }
 
+const tyg = (n) => n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? ' tygodnie' : ' tygodni');
+
+// Plan z ankiety doboru: dane bierzemy ze strony (shop-data + config.js), a nie z formularza,
+// więc do maila trafiają tylko nasze treści i linki.
+async function planParams(f, email, request, env) {
+  const slug = String(f.plan_slug || ''), weeks = String(f.plan_weeks || ''), hours = String(f.plan_hours || '');
+  if (!/^[a-z0-9-]{3,40}$/.test(slug) || !/^\d{1,2}$/.test(weeks) || !/^\d{1,2}-\d{1,2}$/.test(hours)) return null;
+  const origin = new URL(request.url).origin;
+  const [shopHtml, cfgJs] = await Promise.all([
+    env.ASSETS.fetch(new Request(origin + '/plany-treningowe/')).then((r) => r.text()),
+    env.ASSETS.fetch(new Request(origin + '/assets/js/config.js')).then((r) => r.text()),
+  ]);
+  const shopJson = shopHtml.match(/<script[^>]*id="shop-data"[^>]*>([\s\S]*?)<\/script>/);
+  const linksJson = cfgJs.match(/"paymentLinks":\s*(\{[\s\S]*?\})/);
+  if (!shopJson) return null;
+  const shop = JSON.parse(shopJson[1]);
+  const plan = shop.plans && shop.plans[slug];
+  if (!plan || !plan.prices || !plan.prices[weeks] || !(shop.hoursLabel || {})[hours]) return null;
+  const links = linksJson ? JSON.parse(linksJson[1]) : {};
+  const utm = 'utm_source=newsletter&utm_medium=email&utm_campaign=ankieta';
+  let buy = links[slug + '-' + weeks];
+  if (buy) buy += '?client_reference_id=' + encodeURIComponent(`${slug}-${weeks}w-${hours}h`) +
+    '&prefilled_email=' + encodeURIComponent(email) + '&prefilled_promo_code=WITAJ10';
+  else buy = `${origin}/kontakt/?temat=${encodeURIComponent(`Zakup planu: ${plan.name}`)}#formularz`;
+  return {
+    PLAN_NAME: plan.name,
+    PLAN_VARIANT: `${tyg(+weeks)} · ${shop.hoursLabel[hours]} tygodniowo`,
+    PLAN_PRICE: String(plan.prices[weeks]),
+    PLAN_PRICE_CODE: String(Math.round(plan.prices[weeks] * 0.9)),
+    PLAN_TAGLINE: plan.tagline || '',
+    PLAN_PHASES: (plan.phases && plan.phases[weeks]) || [],
+    PLAN_IMG: `${origin}/assets/email/plan-${slug}.jpg`,
+    PLAN_URL: `${origin}${plan.url}?w=${weeks}&h=${hours}&${utm}`,
+    PLAN_BUY: buy,
+  };
+}
+
 async function newsletter(request, env) {
   if (request.method !== 'POST') return json({ ok: false, error: 'Metoda niedozwolona.' }, 405);
 
@@ -69,14 +106,17 @@ async function newsletter(request, env) {
     return json({ ok: false, error: 'Nie udało się zapisać. Spróbuj ponownie.' }, 502);
   }
 
-  // mail powitalny od razu – tylko dla nowego kontaktu (201), nie przy ponownym zapisie (204)
+  // mail powitalny od razu: nowemu kontaktowi (201) albo każdemu, kto przyszedł z ankiety doboru planu
+  // (prosił o przesłanie planu) – wtedy z kartą polecanego planu
   const welcomeTemplate = Number(env.BREVO_WELCOME_TEMPLATE_ID);
-  if (!doiTemplate && welcomeTemplate && res.status === 201) {
-    const sent = await brevo(apiKey, '/smtp/email', {
-      templateId: welcomeTemplate,
-      to: [name ? { email, name } : { email }],
-      tags: ['powitanie'],
-    });
+  let params = null;
+  if (f.plan_slug) {
+    try { params = await planParams(f, email, request, env); } catch (e) { console.error('plan params error', e && e.message); }
+  }
+  if (!doiTemplate && welcomeTemplate && (res.status === 201 || params)) {
+    const msg = { templateId: welcomeTemplate, to: [name ? { email, name } : { email }], tags: [params ? 'ankieta' : 'powitanie'] };
+    if (params) { msg.params = params; msg.subject = `Twój plan: ${params.PLAN_NAME} + kod −10%`; }
+    const sent = await brevo(apiKey, '/smtp/email', msg);
     if (!sent.ok) console.error('Brevo welcome error', sent.status, sent.code, sent.message);
   }
   // ankieta doboru planu: kontakt jest w Brevo, ale strona wysyła też powiadomienie mailem z wybranym planem

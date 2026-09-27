@@ -78,6 +78,38 @@
     <tr><td class="px t-ink" style="padding:16px 40px 0;font:16px/26px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b0b0c;">
       Dzięki za zapis. Jestem Jakub i prowadzę KOMpetition: trenuję kolarzy szosowych, gravelowych i MTB, a na blogu rozkładam na czynniki pierwsze to, co naprawdę działa w treningu.
     </td></tr>
+    {% if params.PLAN_NAME %}
+    <tr><td class="px t-ink" style="padding:16px 40px 0;font:16px/26px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b0b0c;">
+      Obiecany plan z ankiety doboru jest poniżej. Wybrałem go na podstawie Twojego celu, doświadczenia i czasu, który masz na trening.
+    </td></tr>
+    <tr><td class="px" style="padding:26px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="box" style="background:#f4f2ec;border:1px solid #e4e1d8;border-radius:14px;">
+        <tr><td style="padding:0;">
+          <a href="{{ params.PLAN_URL }}" target="_blank"><img src="{{ params.PLAN_IMG }}" width="520" alt="{{ params.PLAN_NAME }}" style="width:100%;max-width:520px;border-radius:14px 14px 0 0;"></a>
+        </td></tr>
+        <tr><td style="padding:22px 24px 0;">
+          <div class="t-muted" style="font:600 13px/16px 'Barlow Condensed','Arial Narrow',Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#5b5b60;">Twój plan z ankiety doboru</div>
+          <div class="t-ink" style="padding-top:6px;font:800 32px/32px 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:#0b0b0c;">{{ params.PLAN_NAME }}</div>
+          <div class="t-ink" style="padding-top:8px;font:700 15px/22px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b0b0c;">{{ params.PLAN_VARIANT }}</div>
+          <div class="t-ink" style="padding-top:10px;font:15px/23px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b0b0c;">{{ params.PLAN_TAGLINE }}</div>
+        </td></tr>
+        <tr><td style="padding:14px 24px 0;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            {% for faza in params.PLAN_PHASES %}<tr><td valign="top" width="20" style="padding:4px 0;font:800 16px/22px 'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#c9a800;">■</td><td class="t-ink" style="padding:4px 0;font:14px/22px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b0b0c;">{{ faza }}</td></tr>{% endfor %}
+          </table>
+        </td></tr>
+        <tr><td style="padding:18px 24px 0;font:15px/22px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;" class="t-ink">
+          <span class="t-muted" style="color:#5b5b60;text-decoration:line-through;">{{ params.PLAN_PRICE }} zł</span>
+          &nbsp;<strong style="font:800 30px/30px 'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#0b0b0c;">{{ params.PLAN_PRICE_CODE }} zł</strong>
+          &nbsp;<span class="t-muted" style="color:#5b5b60;">z kodem WITAJ10</span>
+        </td></tr>
+        <tr><td style="padding:18px 24px 24px;">
+          <a href="{{ params.PLAN_BUY }}" target="_blank" style="display:inline-block;padding:14px 26px;border-radius:999px;background:#ffd500;color:#0b0b0c;font:700 15px/18px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;text-decoration:none;">Kupuję z rabatem &rarr;</a>
+          &nbsp; <a href="{{ params.PLAN_URL }}" target="_blank" class="t-ink" style="font:700 14px/18px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b0b0c;text-decoration:none;border-bottom:2px solid #ffd500;">Szczegóły planu</a>
+        </td></tr>
+      </table>
+    </td></tr>
+    {% endif %}
     <tr><td class="px t-ink" style="padding:16px 40px 0;font:16px/26px Roboto,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#0b0b0c;">
       Co będziesz ode mnie dostawać, maksymalnie kilka razy w miesiącu:
     </td></tr>
@@ -100,6 +132,7 @@
         </td></tr>
       </table>
     </td></tr>
+    {% if params.PLAN_NAME %}{% else %}
     <tr><td class="px" style="padding:26px 40px 0;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
         <td class="btn" align="center" bgcolor="#ffd500" style="border-radius:999px;background:#ffd500;">
@@ -108,6 +141,7 @@
         </td>
       </tr></table>
     </td></tr>
+    {% endif %}
     <tr><td class="px" style="padding:32px 40px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="line" style="border-top:1px solid #e4e1d8;font-size:0;line-height:0;">&nbsp;</td></tr></table></td></tr>
     <tr><td class="px" style="padding:28px 40px 0;">
       <h2 class="t-ink" style="margin:0;font:800 28px/28px 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:#0b0b0c;mso-line-height-rule:exactly;">Od czego zacząć?</h2>
