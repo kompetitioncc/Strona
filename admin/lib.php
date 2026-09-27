@@ -485,7 +485,7 @@ function touch_page(string $path): void {
 function layout_start(string $title, string $active = ''): void {
     $nav = ['index.php' => 'Pulpit', 'posts.php' => 'Blog', 'pages.php' => 'Strony', 'settings.php' => 'Ustawienia', 'backups.php' => 'Kopie zapasowe'];
     echo '<!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">';
-    echo '<title>' . h($title) . ' · Panel KOMpetition</title><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="assets/admin.css"></head><body>';
+    echo '<title>' . h($title) . ' · Panel KOMpetition</title><link rel="icon" href="/favicon.ico?v=2"><link rel="stylesheet" href="assets/admin.css"></head><body>';
     echo '<header class="top"><a class="brand" href="index.php"><img src="/assets/img/logo-white.webp" alt="" height="30"> Panel</a><nav>';
     foreach ($nav as $f => $n) echo '<a href="' . $f . '"' . ($active === $f ? ' class="on"' : '') . '>' . $n . '</a>';
     echo '<a href="/" target="_blank" rel="noopener">Zobacz stronę ↗</a><a href="logout.php">Wyloguj</a></nav></header><main class="wrap">';

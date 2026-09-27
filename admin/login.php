@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?><!DOCTYPE html>
 <html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
-<title>Logowanie · Panel KOMpetition</title><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="assets/admin.css"></head>
+<title>Logowanie · Panel KOMpetition</title><link rel="icon" href="/favicon.ico?v=2"><link rel="stylesheet" href="assets/admin.css"></head>
 <body class="login">
 <form method="post" class="card login-card">
   <img src="/assets/img/logo.webp" alt="KOMpetition.cc" height="56">
