@@ -409,4 +409,32 @@ body = "\n".join([
 ])
 (OUT / "04-newsletter-zbiorczy.html").write_text(page("Co słychać w KOMpetition", "[Preheader: jedno zdanie zachęty, widoczne w skrzynce obok tematu]", body, c))
 
+
+# ---------- 5. NOWY WPIS: ROZTRENOWANIE ----------
+c = "roztrenowanie"
+body = "\n".join([
+    eyebrow("Nowy wpis · Niepopularna opinia"),
+    h1("W roztrenowaniu zamiast trenażera – sauna"),
+    image(f"{IMG}/email/blog-roztrenowanie.jpg", "Roztrenowanie w kolarstwie – nowy wpis na blogu KOMpetition", u("/blog/roztrenowanie-kolarstwo/", c)),
+    p(f"<strong>{GREETING}</strong>", 24),
+    p("Sezon się kończy, a w głowie pojawia się pytanie: ile odpocząć, żeby nie stracić wszystkiego, co wypracowałem? Napisałem o tym duży artykuł – z liczbami z badań i tym, jak roztrenowanie rozpisuję swoim podopiecznym."),
+    h2("Niepopularna opinia", 26),
+    p("W przerwie od treningu forma ucieka najpierw <strong>przez krew</strong>: po 2–4 tygodniach objętość osocza spada o ok. 12%. Co ciekawe, gdy badani mieli przywróconą objętość krwi, ich VO2max wracało niemal do poziomu sprzed przerwy."),
+    p("Dlatego zamiast zmuszać się do trenażera w październiku, polecam <strong>ciepło</strong>: 2–3 razy w tygodniu sauna albo gorąca kąpiel po lekkim ruchu. W badaniu, w którym biegacze przez 3 tygodnie chodzili po treningu do sauny, objętość osocza wzrosła o 7,1%. Zero obciążenia dla nóg i głowy, a „silnik” nie gaśnie."),
+    h2("Co jeszcze znajdziesz w artykule", 26),
+    ul([
+        "<strong>Oś czasu detreningu</strong> – co i kiedy tracisz, gdy odpuszczasz.",
+        "<strong>Minimalna dawka treningu</strong> – dlaczego jedna mocna sesja w tygodniu wystarczy.",
+        "<strong>Przykładowy plan na 3 tygodnie</strong>, siłownia, badania po sezonie i najczęstsze błędy.",
+    ]),
+    button("Czytaj artykuł", u("/blog/roztrenowanie-kolarstwo/", c)),
+    dark_band("A po roztrenowaniu?",
+              "Wróć mądrze od bazy. Plan <strong style=\"color:#ffd500;\">Baza tlenowa</strong> albo <strong style=\"color:#ffd500;\">Powrót do formy</strong> – 8 lub 12 tygodni rozpisanych jednostek w intervals.icu.",
+              "Zobacz plany", u("/plany-treningowe/", c)),
+    p("Masz pytanie o swoje roztrenowanie? Odpisz na tego maila – czytam wszystkie odpowiedzi.", 24),
+    signature(),
+    end(),
+])
+(OUT / "05-wpis-roztrenowanie.html").write_text(page("Roztrenowanie – niepopularna opinia", "Forma ucieka najpierw przez krew. Jak to zatrzymać bez trenażera?", body, c))
+
 print("OK:", sorted(x.name for x in OUT.glob("*.html")))
