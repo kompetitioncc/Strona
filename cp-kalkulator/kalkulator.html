@@ -225,6 +225,11 @@ details.method ul{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size
 .mailcard .lf .check,.mailcard .lf .btn,.mailcard .lf .status{grid-column:1/-1}
 @media (max-width:460px){.mailcard .lf{grid-template-columns:1fr}}
 
+.share{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;align-items:center}
+.share .lbl{width:100%}
+.btn.sm{min-height:44px;padding:0 20px;font-size:14px}
+.btn.outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}
+.btn.outline:hover{border-color:var(--sun);color:var(--sun)}
 .fade{animation:fade .5s var(--ease) both}
 @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -328,6 +333,11 @@ details.method ul{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size
             <h2 class="type" id="rType">--</h2>
             <p class="desc" id="rTypeDesc">--</p>
             <div class="chips" id="rChips"></div>
+            <div class="share">
+              <span class="lbl">Pochwal się na Instagramie</span>
+              <button type="button" class="btn sun sm" data-ig="story">Grafika na story</button>
+              <button type="button" class="btn outline sm" data-ig="post">Grafika na post</button>
+            </div>
           </div>
           <div class="bigstats">
             <div><span class="lbl">CP</span><div class="v num"><span id="rCp">--</span><small>W</small></div></div>
@@ -737,6 +747,103 @@ function submitLead(e) {
     .catch((err) => { statusEl.className = 'status bad'; statusEl.textContent = err.message || 'Błąd wysyłki. Spróbuj ponownie.'; })
     .finally(() => { btn.disabled = false; });
 }
+// ---------- grafika na Instagram (story 1080×1920, post 1080×1350) ----------
+let logoImg = null;
+function loadLogo() {
+  if (logoImg) return Promise.resolve(logoImg);
+  return new Promise((ok) => { const i = new Image(); i.onload = () => { logoImg = i; ok(i); }; i.onerror = () => ok(null); i.src = '/assets/email/logo-white.png'; });
+}
+function fitText(ctx, text, font, maxW, start) {
+  let size = start;
+  do { ctx.font = `800 ${size}px ${font}`; if (ctx.measureText(text).width <= maxW) break; size -= 4; } while (size > 40);
+  return size;
+}
+async function makeGraphic(kind) {
+  const m = model; if (!m) return null;
+  const W = 1080, H = kind === 'story' ? 1920 : 1350;
+  const D = '"Barlow Condensed", "Arial Narrow", sans-serif', T = 'Roboto, Arial, sans-serif';
+  try { await Promise.all([document.fonts.load(`800 100px "Barlow Condensed"`), document.fonts.load(`600 40px "Barlow Condensed"`), document.fonts.load('700 40px Roboto')]); } catch (e) {}
+  const logo = await loadLogo();
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  // tło
+  x.fillStyle = '#0b0b0c'; x.fillRect(0, 0, W, H);
+  const g = x.createRadialGradient(W * 0.85, H * 0.12, 40, W * 0.85, H * 0.12, W * 0.9);
+  g.addColorStop(0, 'rgba(255,213,0,.22)'); g.addColorStop(1, 'rgba(255,213,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const P = 80, story = kind === 'story';
+  let y = story ? 150 : 110;
+  if (logo) { const lw = 240; x.drawImage(logo, P - 8, y - 40, lw, lw * logo.height / logo.width); }
+  y += story ? 230 : 180;
+  // nagłówek
+  x.fillStyle = '#ffd500'; x.fillRect(P, y - 16, 56, 7);
+  x.fillStyle = '#a9a9ae'; x.font = `600 34px ${D}`; x.letterSpacing = '6px';
+  x.fillText('MÓJ PROFIL MOCY', P + 76, y - 2); x.letterSpacing = '0px';
+  y += story ? 150 : 140;
+  const typ = m.type.toUpperCase();
+  const ts = fitText(x, typ, D, W - 2 * P, story ? 150 : 128);
+  x.fillStyle = '#ffd500'; x.font = `800 ${ts}px ${D}`; x.fillText(typ, P - 4, y);
+  y += story ? 70 : 58;
+  x.fillStyle = '#d6d4cd'; x.font = `400 ${story ? 36 : 32}px ${T}`;
+  x.fillText(`${pl(m.cpKg, 2)} W/kg na CP  ·  poziom ${m.cpRank.label}`, P, y);
+  // kafle
+  y += story ? 80 : 76;
+  const tiles = [['CP', r(m.cp), 'W'], ["W'", pl(m.wk, 1), 'kJ'], ['VO2MAX', r(m.vo2), 'ml/kg'], ['VLAMAX', pl(m.vla, 2), 'mmol']];
+  const gap = 24, tw = (W - 2 * P - gap) / 2, th = story ? 250 : 270;
+  tiles.forEach((t, i) => {
+    const tx = P + (i % 2) * (tw + gap), ty = y + Math.floor(i / 2) * (th + gap);
+    x.fillStyle = '#1b1b1e'; x.beginPath(); x.roundRect(tx, ty, tw, th, 28); x.fill();
+    x.strokeStyle = '#2a2a2d'; x.lineWidth = 2; x.stroke();
+    x.fillStyle = '#a9a9ae'; x.font = `600 30px ${D}`; x.letterSpacing = '5px'; x.fillText(t[0], tx + 36, ty + 62); x.letterSpacing = '0px';
+    x.fillStyle = '#fff'; x.font = `800 ${story ? 118 : 124}px ${D}`; x.fillText(String(t[1]), tx + 32, ty + th - 42);
+    const vw = x.measureText(String(t[1])).width;
+    x.fillStyle = '#a9a9ae'; x.font = `600 34px ${D}`; x.fillText(t[2], tx + 44 + vw, ty + th - 44);
+  });
+  y += 2 * th + gap;
+  // krzywa mocy
+  if (story) {
+    y += 70;
+    const cx0 = P, cx1 = W - P, cy1 = y, cy0 = y + 300;
+    const pmin = m.cp * 0.85, pmax = m.cp + m.wJ / 60;
+    const X = (t) => cx0 + (cx1 - cx0) * (Math.log(t / 60) / Math.log(20));
+    const Y = (p) => cy0 - (cy0 - cy1) * (p - pmin) / (pmax - pmin);
+    x.fillStyle = '#a9a9ae'; x.font = `600 30px ${D}`; x.letterSpacing = '5px'; x.fillText('KRZYWA MOCY 1–20 MIN', P, y - 24); x.letterSpacing = '0px';
+    x.beginPath(); for (let t = 60; t <= 1200; t += 10) { const px = X(t), py = Y(m.cp + m.wJ / t); t === 60 ? x.moveTo(px, py) : x.lineTo(px, py); }
+    x.lineTo(cx1, cy0); x.lineTo(cx0, cy0); x.closePath();
+    const gg = x.createLinearGradient(0, cy1, 0, cy0); gg.addColorStop(0, 'rgba(255,213,0,.45)'); gg.addColorStop(1, 'rgba(255,213,0,0)');
+    x.fillStyle = gg; x.fill();
+    x.beginPath(); for (let t = 60; t <= 1200; t += 10) { const px = X(t), py = Y(m.cp + m.wJ / t); t === 60 ? x.moveTo(px, py) : x.lineTo(px, py); }
+    x.strokeStyle = '#ffd500'; x.lineWidth = 7; x.lineJoin = 'round'; x.stroke();
+    x.setLineDash([14, 12]); x.strokeStyle = '#d9362b'; x.lineWidth = 3; x.beginPath(); x.moveTo(cx0, Y(m.cp)); x.lineTo(cx1, Y(m.cp)); x.stroke(); x.setLineDash([]);
+    x.fillStyle = '#a9a9ae'; x.font = `400 26px ${T}`;
+    [['1 min', 60], ['5', 300], ['20 min', 1200]].forEach(([l, t]) => { x.textAlign = t === 1200 ? 'right' : t === 60 ? 'left' : 'center'; x.fillText(l, X(t), cy0 + 44); });
+    x.textAlign = 'left';
+    y = cy0 + 60;
+  }
+  // stopka
+  const fy = H - (story ? 170 : 90);
+  x.fillStyle = '#ffd500'; x.beginPath(); x.roundRect(P, fy - 62, W - 2 * P, 96, 48); x.fill();
+  x.fillStyle = '#0b0b0c'; x.font = `800 44px ${D}`; x.textAlign = 'center';
+  x.fillText('SPRAWDŹ SWÓJ: KOMPETITION.CC/CP-KALKULATOR', W / 2, fy + 2); x.textAlign = 'left';
+  return new Promise((ok) => c.toBlob(ok, 'image/png'));
+}
+document.querySelectorAll('[data-ig]').forEach((b) => b.addEventListener('click', async () => {
+  const kind = b.dataset.ig, label = b.textContent;
+  b.disabled = true; b.textContent = 'Tworzę grafikę…';
+  try {
+    const blob = await makeGraphic(kind);
+    if (!blob) return;
+    const name = `profil-mocy-kompetition-${kind}.png`;
+    const file = new File([blob], name, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && matchMedia('(pointer:coarse)').matches) {
+      try { await navigator.share({ files: [file], text: 'Mój profil mocy – kompetition.cc/cp-kalkulator' }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    try { window.parent && window.parent.dataLayer && window.parent.dataLayer.push({ event: 'share', method: 'instagram_' + kind, content_type: 'cp_kalkulator' }); } catch (e) {}
+  } finally { b.disabled = false; b.textContent = label; }
+}));
+window.__makeGraphic = makeGraphic;
 $('gateForm').addEventListener('submit', submitLead);
 $('mailForm').addEventListener('submit', submitLead);
 </script>
