@@ -158,11 +158,11 @@
         "date": "2026-08-30T09:00",
         "updated": "2026-08-30T09:00",
         "kompedium": false,
-        "og": "/assets/og/blog-fatigue-resistance-kolarstwo.jpg?v=20260928212753",
-        "cover_html": "<img src=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-1200.webp\" srcset=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-480.webp 480w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-800.webp 800w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-1200.webp 1200w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-1600.webp 1600w\" sizes=\"(min-width:1240px) 1130px, 100vw\" width=\"1600\" height=\"800\" alt=\"Kolarz na długiej, górskiej trasie – odporność na zmęczenie w kolarstwie\" fetchpriority=\"high\" decoding=\"async\">",
-        "card_img": "<img src=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-karta-800.webp\" srcset=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-karta-480.webp 480w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
-        "cover_main": "/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-1600.webp",
-        "cover_alt": "Kolarz na długiej, górskiej trasie – odporność na zmęczenie w kolarstwie"
+        "og": "/assets/og/blog-fatigue-resistance-kolarstwo.jpg?v=20260928214816",
+        "cover_html": "<img src=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-1200.webp\" srcset=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-480.webp 480w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-800.webp 800w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-1200.webp 1200w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-1600.webp 1600w\" sizes=\"(min-width:1240px) 1130px, 100vw\" width=\"1600\" height=\"800\" alt=\"Kolarz na długim górskim podjeździe z lodowcami w tle (fot. Azmil Murad / Unsplash)\" fetchpriority=\"high\" decoding=\"async\">",
+        "card_img": "<img src=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-karta-800.webp\" srcset=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-karta-480.webp 480w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+        "cover_main": "/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928214815-1600.webp",
+        "cover_alt": "Kolarz na długim górskim podjeździe z lodowcami w tle (fot. Azmil Murad / Unsplash)"
     },
     {
         "slug": "tymewear-recenzja",

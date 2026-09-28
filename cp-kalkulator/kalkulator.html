@@ -230,6 +230,13 @@ details.method ul{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size
 .btn.sm{min-height:44px;padding:0 20px;font-size:14px}
 .btn.outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}
 .btn.outline:hover{border-color:var(--sun);color:var(--sun)}
+.howto{display:flex;align-items:center;gap:16px;background:var(--ink);color:#fff;border-radius:var(--r);padding:16px 20px;margin-bottom:16px;text-decoration:none;box-shadow:var(--shadow);transition:transform .2s var(--ease)}
+.howto:hover{transform:translateY(-1px)}
+.howto .ic{flex:none;width:44px;height:44px;border-radius:12px;background:var(--sun);color:var(--ink);display:grid;place-items:center}
+.howto b{display:block;font:800 20px/1.05 var(--display);text-transform:uppercase}
+.howto span{color:var(--muted-dark);font-size:14px}
+.howto .go{margin-left:auto;flex:none;font:700 14px var(--text);color:var(--sun);white-space:nowrap}
+@media (max-width:560px){.howto .go{display:none}}
 .fade{animation:fade .5s var(--ease) both}
 @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -243,6 +250,12 @@ details.method ul{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size
     <h1>Twój <span class="hl">profil mocy</span></h1>
     <p>Dwa wysiłki – 3 i 12 minut – i dostajesz pełny obraz silnika: CP, W', VO2max, VLaMax, FatMax, profil włókien, spalanie paliwa i konkretny kierunek treningu.</p>
   </header>
+
+  <a class="howto" href="/blog/test-cp-3-12-min/" target="_top">
+    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V14M10 20V6M16 20v-9M22 20H2"/></svg></span>
+    <div><b>Nie masz jeszcze wyników z 3 i 12 minut?</b><span>Instrukcja testu krok po kroku, pacing i gotowy plik na Zwifta.</span></div>
+    <span class="go">Jak zrobić test →</span>
+  </a>
 
   <!-- DANE -->
   <section class="card" id="formCard">
