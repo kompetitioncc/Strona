@@ -149,6 +149,29 @@ html,body{overflow:hidden}
                         <p class="text-sm text-gray-500 mt-2 max-w-md">Wprowadź dane po lewej stronie, aby wygenerować raport.</p>
                     </div>
 
+                    <div id="leadGateOverlay" class="hidden absolute inset-0 bg-white z-20 flex flex-col items-center justify-center text-center p-8 border border-gray-100">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/></svg></div>
+                        <h3 class="text-xl font-bold text-black font-header">Zostaw kontakt, pokażę Ci wynik</h3>
+                        <p class="text-sm text-gray-500 mt-2 max-w-md">Twój profil CP, W' i sugestie treningowe są gotowe. Podaj e-mail, a odblokuję pełny raport i polecę Ci konkretny plan treningowy.</p>
+                        <form id="leadGateForm" class="w-full max-w-md mt-6 text-left space-y-3" novalidate>
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+                            <div>
+                                <label class="block text-xs font-bold text-black uppercase tracking-wider mb-1">Imię *</label>
+                                <input type="text" id="leadImie" name="imie" autocomplete="given-name" required minlength="2" class="input-minimal w-full p-3 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-black uppercase tracking-wider mb-1">E-mail *</label>
+                                <input type="email" id="leadEmail" name="email" autocomplete="email" required class="input-minimal w-full p-3 bg-gray-50">
+                            </div>
+                            <label class="flex items-start gap-2 text-xs text-gray-500">
+                                <input type="checkbox" id="leadZgoda" required class="mt-0.5">
+                                <span>Chcę dostać wynik i newsletter KOMpetition.cc na e-mail. Zgodę mogę wycofać w każdej chwili. Administrator danych: Jakub Obitko — <a href="/polityka-prywatnosci/" target="_top" class="underline">polityka prywatności</a>.</span>
+                            </label>
+                            <button type="submit" class="btn-minimal w-full py-4 text-sm font-bold uppercase tracking-widest">Pokaż mi wynik</button>
+                            <p id="leadGateStatus" class="text-xs font-bold text-center h-4"></p>
+                        </form>
+                    </div>
+
                     <div class="flex-grow">
                         <!-- Header Stats -->
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-200 pb-4">
@@ -276,6 +299,21 @@ html,body{overflow:hidden}
                             </div>
                         </div>
 
+                        <div class="mt-6 bg-white border-2 border-black p-6">
+                            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Na bazie Twojego profilu polecam</p>
+                            <div class="flex flex-col md:flex-row gap-5 md:items-center">
+                                <img id="recPlanImg" src="" alt="" class="w-full md:w-32 rounded-sm object-cover" style="aspect-ratio:4/3">
+                                <div class="flex-grow">
+                                    <h3 id="recPlanName" class="text-xl font-black font-header text-black">--</h3>
+                                    <p id="recPlanWhy" class="text-sm text-gray-500 mt-1">--</p>
+                                </div>
+                                <div class="text-center md:text-right flex-none">
+                                    <div id="recPlanPrice" class="text-lg font-black mb-2">--</div>
+                                    <a id="recPlanCTA" href="#" target="_top" class="btn-minimal inline-block px-6 py-3 text-sm font-bold uppercase tracking-widest">Zobacz plan</a>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mt-8 bg-white p-4 border border-gray-100 h-[250px] w-full"><canvas id="cpChart"></canvas></div>
                     </div>
                 </div>
@@ -362,10 +400,23 @@ html,body{overflow:hidden}
         let computedCP = 0, computedWPrime = 0, computedWeight = 0, computedBF = 0;
         let myChart = null;
         let pacingMode = 'time';
+        let leadUnlocked = false;
+        let pendingLeadPlan = '';
+        let pendingRecSlug = '', pendingRecWeeks = '8', pendingRecHours = '6-8';
+
+        const PLAN_REC = {
+            'poprawa-vo2max': { name: 'Poprawa VO2max', url: '/plany-treningowe/poprawa-vo2max/', cover: '/assets/img/plan-poprawa-vo2max-og-1200.webp', price: 250, tagline: 'Więcej „góry” – mocy na 2–8-minutowych podjazdach i w decydujących akcjach wyścigu.' },
+            'poprawa-ftp': { name: 'Poprawa FTP', url: '/plany-treningowe/poprawa-ftp/', cover: '/assets/img/plan-poprawa-ftp-og-1200.webp', price: 250, tagline: 'Dla kolarza, który utknął na jednej wartości mocy progowej i chce ją ruszyć z miejsca.' }
+        };
 
         Chart.defaults.font.family = "Roboto, sans-serif";
 
         function switchTab(t) {
+            if ((t === 'zones' || t === 'pacing') && computedCP > 0 && !leadUnlocked) {
+                const em = document.getElementById('leadEmail');
+                em && em.focus({ preventScroll: false });
+                return;
+            }
             const tabs = ['profile', 'zones', 'pacing'];
             tabs.forEach(tab => {
                 const content = document.getElementById(`tab-${tab}-content`);
@@ -603,10 +654,40 @@ html,body{overflow:hidden}
                 document.getElementById('trainingFocus').innerHTML = focus;
                 document.getElementById('trainingWorkouts').innerHTML = workouts;
 
+                // Recommended plan, based on the same CP/W' profile
+                let recSlug, recWhy;
+                if (computedWPrime < wLowLimit) {
+                    recSlug = 'poprawa-vo2max';
+                    recWhy = `Masz profil "silnika tlenowego" z ograniczonym zapasem beztlenowym (W' = ${computedWPrime.toFixed(1)} kJ). Ten plan podnosi Twój pułap – moc na 2–8 minut.`;
+                } else if (computedWPrime > wHighLimit) {
+                    recSlug = 'poprawa-ftp';
+                    recWhy = `Masz spory zapas beztlenowy (W' = ${computedWPrime.toFixed(1)} kJ) – teraz najwięcej zyskasz na podciągnięciu progu (CP), żeby dłużej utrzymywać wysoką moc.`;
+                } else {
+                    recSlug = 'poprawa-ftp';
+                    recWhy = `Masz zbalansowany profil CP/W' – najwięcej zyskasz na solidnej progresji progu mocy (FTP).`;
+                }
+                const rp = PLAN_REC[recSlug];
+                document.getElementById('recPlanImg').src = rp.cover;
+                document.getElementById('recPlanImg').alt = rp.name;
+                document.getElementById('recPlanName').innerText = rp.name;
+                document.getElementById('recPlanWhy').innerText = recWhy;
+                document.getElementById('recPlanPrice').innerText = 'od ' + rp.price + ' zł';
+                document.getElementById('recPlanCTA').href = rp.url;
+                pendingLeadPlan = `Kalkulator CP: ${rp.name} (CP ${Math.round(computedCP)}W, W' ${computedWPrime.toFixed(1)}kJ, profil: ${type})`;
+                pendingRecSlug = recSlug;
+                pendingRecWeeks = '8';
+                pendingRecHours = ({ 4: '4-6', 7: '6-8', 11: '8-10', 16: '10-12' })[volume] || '6-8';
+
                 updateChart2P(computedCP, wPrimeJ, rawPmax);
-                
+
                 // Trigger Zones render if data available
                 renderZonesTable();
+
+                // Gate the reveal behind newsletter opt-in (once per browser)
+                let alreadySubscribed = false;
+                try { alreadySubscribed = localStorage.getItem('kom-nl') === 'subscribed'; } catch (e4) {}
+                leadUnlocked = alreadySubscribed;
+                document.getElementById('leadGateOverlay').classList.toggle('hidden', alreadySubscribed);
 
             } catch (e) {
                 console.error(e);
@@ -614,6 +695,63 @@ html,body{overflow:hidden}
                 document.getElementById('errorMsg').classList.remove('hidden');
             }
         }
+
+        document.getElementById('leadGateForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const emailEl = document.getElementById('leadEmail');
+            const zgodaEl = document.getElementById('leadZgoda');
+            const statusEl = document.getElementById('leadGateStatus');
+            const honeypot = form.querySelector('[name=website]');
+            if (honeypot && honeypot.value) return; // bot
+
+            const imieEl = document.getElementById('leadImie');
+            if (!emailEl.checkValidity() || !imieEl.checkValidity() || !zgodaEl.checked) {
+                statusEl.className = 'text-xs font-bold text-center h-4 text-red-600';
+                statusEl.innerText = !imieEl.checkValidity() ? 'Podaj swoje imię.' : 'Podaj poprawny e-mail i zaznacz zgodę.';
+                return;
+            }
+
+            const btn = form.querySelector('button[type=submit]');
+            btn.disabled = true;
+            statusEl.className = 'text-xs font-bold text-center h-4 text-gray-500';
+            statusEl.innerText = 'Wysyłanie…';
+
+            const fd = new FormData();
+            fd.append('email', emailEl.value);
+            fd.append('imie', imieEl.value);
+            fd.append('zgoda', '1');
+            fd.append('website', honeypot ? honeypot.value : '');
+            fd.append('page', '/cp-kalkulator/');
+            fd.append('plan', pendingLeadPlan || 'Kalkulator CP');
+            fd.append('plan_slug', pendingRecSlug || '');
+            fd.append('plan_weeks', pendingRecWeeks || '');
+            fd.append('plan_hours', pendingRecHours || '');
+
+            fetch('/api/newsletter.php', { method: 'POST', body: fd, headers: { Accept: 'application/json' } })
+                .then(function (r) { return r.json().catch(function () { return null; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+                .then(function (res) {
+                    if (!res.ok || (res.j && res.j.ok === false)) throw new Error((res.j && res.j.error) || 'Błąd wysyłki. Spróbuj ponownie.');
+                    try { localStorage.setItem('kom-nl', 'subscribed'); } catch (e2) {}
+                    leadUnlocked = true;
+                    document.getElementById('leadGateOverlay').classList.add('hidden');
+                    try {
+                        window.parent && window.parent.dataLayer && window.parent.dataLayer.push({ event: 'sign_up', method: 'cp_kalkulator' });
+                        window.parent && window.parent.komFb && window.parent.komFb('Lead', { content_name: 'Kalkulator CP' });
+                    } catch (e3) {}
+                    if (res.j && res.j.relay) {
+                        fetch('https://formsubmit.co/ajax/kontakt@kompetition.cc', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                            body: JSON.stringify({ _subject: 'Nowy lead z kalkulatora CP – KOMpetition.cc', email: emailEl.value, imie: imieEl.value, plan: pendingLeadPlan, _replyto: emailEl.value, _template: 'table', _captcha: 'false', strona: '/cp-kalkulator/' })
+                        }).catch(function () {});
+                    }
+                })
+                .catch(function (err) {
+                    statusEl.className = 'text-xs font-bold text-center h-4 text-red-600';
+                    statusEl.innerText = err.message || 'Błąd wysyłki. Spróbuj ponownie.';
+                })
+                .finally(function () { btn.disabled = false; });
+        });
 
         function renderZonesTable() {
             const tbody = document.getElementById('zonesTableBody');
