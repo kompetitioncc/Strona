@@ -163,5 +163,20 @@
         "card_img": "<img src=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-karta-800.webp\" srcset=\"/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-karta-480.webp 480w, /assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
         "cover_main": "/assets/uploads/covers/fatigue-resistance-kolarstwo-20260928212753-1600.webp",
         "cover_alt": "Kolarz na długiej, górskiej trasie – odporność na zmęczenie w kolarstwie"
+    },
+    {
+        "slug": "tymewear-recenzja",
+        "title": "Tymewear – moje doświadczenia z czujnikiem oddechu w treningu kolarskim",
+        "seo_title": "Tymewear – recenzja i doświadczenia trenera kolarstwa | KOMpetition",
+        "desc": "Tymewear VitalPro w praktyce: jak mierzy oddech i progi VT1/VT2, jak dokładny jest według badań, gdzie sprawdza się najlepiej i komu go polecam.",
+        "short": "Tymewear – recenzja",
+        "date": "2026-08-16T09:00",
+        "updated": "2026-08-16T09:00",
+        "kompedium": false,
+        "og": "/assets/og/blog-tymewear-recenzja.jpg?v=20260928214111",
+        "cover_html": "<img src=\"/assets/uploads/covers/tymewear-recenzja-20260928214111-1200.webp\" srcset=\"/assets/uploads/covers/tymewear-recenzja-20260928214111-480.webp 480w, /assets/uploads/covers/tymewear-recenzja-20260928214111-800.webp 800w, /assets/uploads/covers/tymewear-recenzja-20260928214111-1200.webp 1200w, /assets/uploads/covers/tymewear-recenzja-20260928214111-1600.webp 1600w\" sizes=\"(min-width:1240px) 1130px, 100vw\" width=\"1600\" height=\"800\" alt=\"Kolarze na mokrym bruku podczas wyścigu (fot. Tymewear)\" fetchpriority=\"high\" decoding=\"async\">",
+        "card_img": "<img src=\"/assets/uploads/covers/tymewear-recenzja-20260928214111-karta-800.webp\" srcset=\"/assets/uploads/covers/tymewear-recenzja-20260928214111-karta-480.webp 480w, /assets/uploads/covers/tymewear-recenzja-20260928214111-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+        "cover_main": "/assets/uploads/covers/tymewear-recenzja-20260928214111-1600.webp",
+        "cover_alt": "Kolarze na mokrym bruku podczas wyścigu (fot. Tymewear)"
     }
 ]
