@@ -63,7 +63,6 @@ async function planParams(f, email, request, env) {
     PLAN_PRICE: String(plan.prices[weeks]),
     PLAN_PRICE_CODE: String(Math.round(plan.prices[weeks] * 0.9)),
     PLAN_TAGLINE: plan.tagline || '',
-    PLAN_PHASES: (plan.phases && plan.phases[weeks]) || [],
     PLAN_IMG: `${origin}/assets/email/plan-${slug}.jpg`,
     PLAN_URL: `${origin}${plan.url}?w=${weeks}&h=${hours}&${utm}`,
     PLAN_BUY: buy,

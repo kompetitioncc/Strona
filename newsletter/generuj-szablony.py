@@ -258,11 +258,6 @@ def plan_card(label="Twój plan z ankiety doboru"):
           <div class="t-ink" style="padding-top:8px;font:700 15px/22px {TEXT};color:{INK};">{{{{ params.PLAN_VARIANT }}}}</div>
           <div class="t-ink" style="padding-top:10px;font:15px/23px {TEXT};color:{INK};">{{{{ params.PLAN_TAGLINE }}}}</div>
         </td></tr>
-        <tr><td style="padding:14px 24px 0;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-            {{% for faza in params.PLAN_PHASES %}}<tr><td valign="top" width="20" style="padding:4px 0;font:800 16px/22px {DISPLAY};color:{SUN_DEEP};">■</td><td class="t-ink" style="padding:4px 0;font:14px/22px {TEXT};color:{INK};">{{{{ faza }}}}</td></tr>{{% endfor %}}
-          </table>
-        </td></tr>
         <tr><td style="padding:18px 24px 0;font:15px/22px {TEXT};" class="t-ink">
           <span class="t-muted" style="color:{MUTED};text-decoration:line-through;">{{{{ params.PLAN_PRICE }}}} zł</span>
           &nbsp;<strong style="font:800 30px/30px {DISPLAY};color:{INK};">{{{{ params.PLAN_PRICE_CODE }}}} zł</strong>
