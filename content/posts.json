@@ -133,5 +133,20 @@
         "card_img": "<img src=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-karta-800.webp\" srcset=\"/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-karta-480.webp 480w, /assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
         "cover_main": "/assets/uploads/covers/zywienie-i-suplementacja-kolarza-kompedium-20260927214321-1600.webp",
         "cover_alt": "Kolarz w kasku i okularach pije z bidonu podczas jazdy (fot. Viktor Bystrov / Unsplash)"
+    },
+    {
+        "slug": "test-cp-3-12-min",
+        "title": "Test CP 3 i 12 minut – jak go zrobić krok po kroku",
+        "seo_title": "Test CP 3 i 12 minut – jak zrobić test mocy krytycznej | KOMpetition",
+        "desc": "Jak zrobić test CP (3 i 12 minut): przygotowanie, przebieg, pacing, najczęstsze błędy i co mówią badania. Plik na Zwifta i kalkulator CP z raportem.",
+        "short": "Test CP 3 + 12 min",
+        "date": "2026-09-12T09:00",
+        "updated": "2026-09-12T09:00",
+        "kompedium": false,
+        "og": "/assets/og/blog-test-cp-3-12-min.jpg?v=20260928212525",
+        "cover_html": "<img src=\"/assets/uploads/covers/test-cp-3-12-min-20260928212524-1200.webp\" srcset=\"/assets/uploads/covers/test-cp-3-12-min-20260928212524-480.webp 480w, /assets/uploads/covers/test-cp-3-12-min-20260928212524-800.webp 800w, /assets/uploads/covers/test-cp-3-12-min-20260928212524-1200.webp 1200w, /assets/uploads/covers/test-cp-3-12-min-20260928212524-1500.webp 1500w\" sizes=\"(min-width:1240px) 1130px, 100vw\" width=\"1500\" height=\"750\" alt=\"Kolarz na górskiej szosie podczas mocnego wysiłku – test mocy krytycznej w terenie\" fetchpriority=\"high\" decoding=\"async\">",
+        "card_img": "<img src=\"/assets/uploads/covers/test-cp-3-12-min-20260928212524-karta-800.webp\" srcset=\"/assets/uploads/covers/test-cp-3-12-min-20260928212524-karta-480.webp 480w, /assets/uploads/covers/test-cp-3-12-min-20260928212524-karta-800.webp 800w\" sizes=\"(min-width:980px) 380px, (min-width:640px) 50vw, 100vw\" width=\"800\" height=\"500\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+        "cover_main": "/assets/uploads/covers/test-cp-3-12-min-20260928212524-1500.webp",
+        "cover_alt": "Kolarz na górskiej szosie podczas mocnego wysiłku – test mocy krytycznej w terenie"
     }
 ]

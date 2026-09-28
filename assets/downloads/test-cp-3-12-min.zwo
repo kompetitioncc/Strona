@@ -1,0 +1,30 @@
+<workout_file>
+    <author>Jakub Obitko · KOMpetition.cc</author>
+    <name>Test CP 3 + 12 min</name>
+    <description>Test mocy krytycznej: 3 min i 12 min all-out z 30 min przerwy. Obie próby w trybie free ride – jedź na maksa, równo, bez sprintu na starcie. Wyniki (średnie moce) wpisz na kompetition.cc/cp-kalkulator</description>
+    <sportType>bike</sportType>
+    <tags><tag name="TEST"/></tags>
+    <workout>
+        <Warmup Duration="480" PowerLow="0.45" PowerHigh="0.65"/>
+        <IntervalsT Repeat="3" OnDuration="60" OffDuration="180" OnPower="1.05" OffPower="0.55"/>
+        <SteadyState Duration="600" Power="0.5">
+            <textevent timeoffset="10" message="10 min luzu. Za chwilę 3 minuty ALL-OUT."/>
+            <textevent timeoffset="540" message="Za minutę start: pierwsze 20–30 s tylko lekko ponad plan, potem równo."/>
+        </SteadyState>
+        <FreeRide Duration="180" FlatRoad="1">
+            <textevent timeoffset="0" message="3 MIN ALL-OUT – bez sprintu na starcie!"/>
+            <textevent timeoffset="120" message="Ostatnia minuta – wszystko, co zostało!"/>
+        </FreeRide>
+        <SteadyState Duration="1800" Power="0.45">
+            <textevent timeoffset="10" message="Zapisz średnią moc z 3 min. Teraz 30 min bardzo spokojnie – pij i jedz."/>
+            <textevent timeoffset="1740" message="Za minutę 12 minut ALL-OUT. Pierwsze 2 min lekko zachowawczo."/>
+        </SteadyState>
+        <FreeRide Duration="720" FlatRoad="1">
+            <textevent timeoffset="0" message="12 MIN ALL-OUT – cierpliwie na początku."/>
+            <textevent timeoffset="540" message="Ostatnie 3 minuty – stopniowo przyspieszaj!"/>
+        </FreeRide>
+        <Cooldown Duration="600" PowerLow="0.55" PowerHigh="0.4">
+            <textevent timeoffset="10" message="Brawo! Wpisz średnie moce na kompetition.cc/cp-kalkulator"/>
+        </Cooldown>
+    </workout>
+</workout_file>

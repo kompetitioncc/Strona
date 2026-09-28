@@ -401,7 +401,126 @@ def cele_hierarchia():
         "Cel wynikowy na sezon, cel wykonawczy na 8–12 tygodni i cele procesowe na każdy tydzień; starty dzielone na priorytety A, B i C.")
 
 
+# ================================================================ TEST CP 3/12 MIN
+def test_cp_protokol():
+    W, H = 1200, 640
+    b = header("Test CP w jednej sesji", "Przebieg testu 3 + 12 minut", W)
+    x0, x1, base = 70, 1130, 470
+    total = 20 + 10 + 3 + 30 + 12 + 10          # min (sprint i luz po nim w bloku 10 min)
+    X = lambda m: x0 + (x1 - x0) * m / total
+    hmax = 290
+    blocks = [  # (start, dł., wysokość 0–1, kolor, podpis, podpis2)
+        (0, 20, .42, SAND, "Rozgrzewka", "20 min Z2 + 3×1 min"),
+        (20, 10, .30, SAND, "Luz", "10 min"),
+        (30, 3, 1.0, INK, "3 min", "all-out"),
+        (33, 30, .25, SAND, "Luz", "30 min spokojnie"),
+        (63, 12, .78, INK, "12 min", "all-out"),
+        (75, 10, .25, SAND, "Schłodzenie", "10 min"),
+    ]
+    for st, d, hh, col, a, c in blocks:
+        h = hmax * hh
+        b += f'<rect x="{X(st)+2}" y="{base-h}" width="{X(st+d)-X(st)-4}" height="{h}" rx="8" fill="{col}" stroke="{LINE if col==SAND else INK}" stroke-width="2"/>'
+        cx = (X(st) + X(st + d)) / 2
+        if col == INK:
+            b += t(cx, base - h - 40, a, 30, "h", INK, "middle") + t(cx, base - h - 14, c, 18, "k", SUN_DEEP, "middle")
+        else:
+            b += t(cx, base + 34, a, 20, "h", INK, "middle") + t(cx, base + 58, c, 16, "t", MUTED, "middle")
+    # rozgrzewka: 3 krótkie przebieżki
+    for k in range(3):
+        xm = X(8 + k * 4)
+        b += f'<rect x="{xm}" y="{base-hmax*.62}" width="{X(1)-X(0)}" height="{hmax*.62}" rx="3" fill="{SUN}"/>'
+    # opcjonalny sprint
+    xs = X(21.5)
+    b += f'<rect x="{xs}" y="{base-hmax*1.0}" width="8" height="{hmax*1.0}" rx="3" fill="{SUN}" stroke="{INK}" stroke-width="1.5"/>'
+    b += t(xs - 12, base - hmax * .88, "sprint 12 s", 17, "t b", INK, "end") + t(xs - 12, base - hmax * .88 + 20, "(opcjonalnie)", 16, "t", MUTED, "end")
+    b += f'<line x1="{x0}" x2="{x1}" y1="{base}" y2="{base}" stroke="{INK}" stroke-width="2"/>'
+    b += footer("Ok. 85 min. Przerwa 30 min między próbami nie zmienia CP ani W' (Triska i in. 2021).", W, H)
+    svg("test-cp-protokol", W, H, b, "Przebieg testu CP 3 + 12 minut",
+        "Rozgrzewka 20 minut z trzema krótkimi przyspieszeniami, opcjonalny sprint 12 s, 3 minuty all-out, 30 minut spokojnej jazdy, 12 minut all-out i schłodzenie.")
+
+
+def test_cp_model():
+    W, H = 1200, 680
+    b = header("Jak z dwóch wyników powstaje CP i W'", "Model mocy krytycznej", W)
+    x0, x1, y0, y1 = 130, 1100, 560, 150
+    tmax, pmin, pmax = 20, 250, 450
+    X = lambda m: x0 + (x1 - x0) * m / tmax
+    Y = lambda p: y0 - (y0 - y1) * (p - pmin) / (pmax - pmin)
+    cp, wj = 280, 21600
+    for pv in range(250, 451, 50):
+        b += f'<line x1="{x0}" x2="{x1}" y1="{Y(pv)}" y2="{Y(pv)}" stroke="{LINE}" stroke-width="1.5"/>' + t(x0 - 14, Y(pv) + 7, f"{pv} W", 17, "t", MUTED, "end")
+    for m in (2, 5, 10, 15, 20):
+        b += t(X(m), y0 + 32, f"{m} min", 17, "t", MUTED, "middle")
+    pts = [(m / 10, cp + wj / (m * 6)) for m in range(20, 201)]
+    area = f"M{X(2)},{Y(cp)} " + " ".join(f"L{X(a)},{Y(min(p, pmax))}" for a, p in pts) + f" L{X(20)},{Y(cp)} Z"
+    b += f'<path d="{area}" fill="{SUN_SOFT}"/>'
+    b += f'<polyline points="{" ".join(f"{X(a)},{Y(min(p, pmax))}" for a, p in pts)}" fill="none" stroke="{INK}" stroke-width="5"/>'
+    b += f'<line x1="{x0}" x2="{x1}" y1="{Y(cp)}" y2="{Y(cp)}" stroke="#d9362b" stroke-width="3" stroke-dasharray="10 8"/>'
+    b += t(x1, Y(cp) + 30, "CP = 280 W – granica stanu równowagi", 19, "t b", "#d9362b", "end")
+    for m, pv, lab in ((3, 400, "3 min: 400 W"), (12, 310, "12 min: 310 W")):
+        b += f'<circle cx="{X(m)}" cy="{Y(pv)}" r="11" fill="{SUN}" stroke="{INK}" stroke-width="4"/>' + t(X(m) + 20, Y(pv) - 16, lab, 21, "h")
+    b += t(X(4.3), Y(304), "W' = 21,6 kJ", 26, "h", SUN_DEEP) + t(X(4.3), Y(304) + 22, "„bak” pracy powyżej CP", 17, "t", SUN_DEEP)
+    bx = X(13.2)
+    b += (f'<rect x="{bx}" y="{Y(445)}" width="{x1-bx}" height="116" rx="12" fill="{SAND}"/>' +
+          t(bx + 18, Y(445) + 34, "CP = (P12·720 − P3·180) / 540", 18, "t b") +
+          t(bx + 18, Y(445) + 64, "W' = (P3 − CP) · 180", 18, "t b") +
+          t(bx + 18, Y(445) + 94, "moc w W, czas w sekundach", 16, "t", MUTED))
+    b += footer("Model 2-parametrowy (Monod i Scherrer 1965). Przykład: 400 W / 310 W.", W, H)
+    svg("test-cp-model", W, H, b, "Model mocy krytycznej z testu 3 i 12 minut",
+        "Z mocy 400 W w 3 minuty i 310 W w 12 minut wychodzi CP 280 W oraz W' 21,6 kJ – pole nad linią CP.")
+
+
+# ================================================================ FATIGUE RESISTANCE
+def fr_spadek():
+    W, H = 1200, 660
+    b = header("Po 2–2,5 h jazdy", "Ile mocy tracisz, gdy jesteś zmęczony", W)
+    rows = [
+        ("Próg tlenowy (VT1) po 2 h", "Stevenson i in. 2022", 10, None),
+        ("5-min TT po 150 min – bez węglowodanów", "Dudley-Rode i in. 2024", 10, None),
+        ("5-min TT po 150 min – z węglowodanami", "Dudley-Rode i in. 2024", 4, None),
+        ("XCO po 140 min – słabsi zawodnicy", "Inoue i in. 2026", 17, None),
+        ("XCO po 140 min – najlepsi zawodnicy", "Inoue i in. 2026", 6, None),
+    ]
+    x0, x1, y = 560, 1100, 150
+    X = lambda v: x0 + (x1 - x0) * v / 20
+    for v in (0, 5, 10, 15, 20):
+        b += f'<line x1="{X(v)}" x2="{X(v)}" y1="{y-10}" y2="{y+5*78-20}" stroke="{LINE}" stroke-width="1.5"/>' + t(X(v), y + 5 * 78 + 8, f"−{v}%", 17, "t", MUTED, "middle")
+    for i, (a, src, v, _) in enumerate(rows):
+        yy = y + i * 78
+        good = "z węglowodanami" in a or "najlepsi" in a
+        b += t(56, yy + 22, a, 19, "t b") + t(56, yy + 46, src, 15, "t", MUTED)
+        b += f'<rect x="{x0}" y="{yy+6}" width="{X(v)-x0}" height="38" rx="8" fill="{SUN if good else INK}"/>'
+        b += t(X(v) + 12, yy + 33, f"−{v}%", 22, "h", SUN_DEEP if good else INK)
+    b += footer("Wartości średnie z badań; indywidualnie różnice są duże – to właśnie jest „durability”.", W, H)
+    svg("fatigue-resistance-spadek", W, H, b, "Spadek mocy po długiej jeździe",
+        "Po 2–2,5 godziny jazdy moc na progu tlenowym i w 5-minutowej próbie spada o 4–17%; mniej u zawodników lepszych i przy jedzeniu węglowodanów.")
+
+
+def fr_czynniki():
+    W, H = 1200, 600
+    b = header("Co decyduje o odporności na zmęczenie", "Fatigue resistance – od czego zależy", W)
+    items = [
+        ("Silnik tlenowy", "VO2max, CP i wysoki", "próg tlenowy"),
+        ("Tłuszcze", "wysokie spalanie", "oszczędza glikogen"),
+        ("Węglowodany", "60–90+ g/h od startu", "chronią próg i moc"),
+        ("Ekonomia i siła", "mniejszy spadek", "sprawności i momentu"),
+        ("Objętość", "długie jazdy", "z akcentami na końcu"),
+    ]
+    n = len(items); gap = 20; cw = (W - 112 - gap * (n - 1)) / n
+    for i, (h, a, c) in enumerate(items):
+        x = 56 + i * (cw + gap)
+        b += f'<rect x="{x}" y="150" width="{cw}" height="260" rx="18" fill="{SAND}"/>'
+        b += f'<circle cx="{x+40}" cy="196" r="22" fill="{INK}"/>' + t(x + 40, 204, str(i + 1), 22, "h", SUN, "middle")
+        b += t(x + 22, 262, h, 24, "h") + t(x + 22, 300, a, 17, "t") + t(x + 22, 324, c, 17, "t", MUTED)
+    b += (f'<rect x="56" y="440" width="{W-112}" height="70" rx="14" fill="{INK}"/>' +
+          t(84, 484, "Mierz: moc 5–20 min po 1500–2500 kJ (lub 20–30 kJ/kg) i porównuj ze świeżą", 21, "t b", WHITE))
+    b += footer("Maunder i in. 2021; Hunter i in. 2025; Mateo-March i in. 2026.", W, H)
+    svg("fatigue-resistance-czynniki", W, H, b, "Czynniki odporności na zmęczenie",
+        "Silnik tlenowy, spalanie tłuszczów, węglowodany w trakcie jazdy, ekonomia i siła oraz objętość treningu decydują o tym, ile mocy zostaje po wielu godzinach.")
+
+
 if __name__ == "__main__":
     detrening(); minimalna_dawka(); sezon()
     wegle_na_godzine(); wegle_dziennie(); glukoza_fruktoza(); dzien_wyscigu(); piramida()
     heat_os_czasu(); ge_porownanie(); krzywa_mleczanowa(); cele_hierarchia()
+    test_cp_protokol(); test_cp_model(); fr_spadek(); fr_czynniki()
