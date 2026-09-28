@@ -12,7 +12,7 @@
   },
   // nie kasuj zmiennych ustawionych w panelu Cloudflare przy wdrożeniu
   // numer listy „Newsletter” w Brevo (nie jest tajny); klucz API tylko jako Secret w panelu Cloudflare
-  "vars": { "BREVO_LIST_ID": "2", "BREVO_WELCOME_TEMPLATE_ID": "15" },
+  "vars": { "BREVO_LIST_ID": "2", "BREVO_WELCOME_TEMPLATE_ID": "15", "BREVO_CP_TEMPLATE_ID": "28" },
   "keep_vars": true,
   "observability": { "enabled": true }
 }
