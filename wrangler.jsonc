@@ -12,7 +12,11 @@
   },
   // nie kasuj zmiennych ustawionych w panelu Cloudflare przy wdrożeniu
   // numer listy „Newsletter” w Brevo (nie jest tajny); klucz API tylko jako Secret w panelu Cloudflare
-  "vars": { "BREVO_LIST_ID": "2", "BREVO_WELCOME_TEMPLATE_ID": "30", "BREVO_CP_TEMPLATE_ID": "29" },
+  "vars": { "BREVO_LIST_ID": "2", "BREVO_WELCOME_TEMPLATE_ID": "30", "BREVO_CP_TEMPLATE_ID": "29", "BREVO_CP_REMINDER_TEMPLATE_ID": "31", "CP_REMINDER_DAYS": "56" },
+  // terminy przypomnień o powtórce testu CP (zapisuje je Worker po wysłaniu raportu)
+  "kv_namespaces": [{ "binding": "CP_KV", "id": "36ecec85d8ad48299bdee70365e6d2ee" }],
+  // codziennie 7:00 UTC (9:00 w Polsce latem) – wysyłka przypomnień
+  "triggers": { "crons": ["0 7 * * *"] },
   "keep_vars": true,
   "observability": { "enabled": true }
 }

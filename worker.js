@@ -5,6 +5,8 @@
 //   BREVO_DOI_TEMPLATE_ID    opcjonalnie: szablon double opt-in; bez niego zapis jest od razu (zgoda z checkboxa)
 //   BREVO_WELCOME_TEMPLATE_ID szablon maila powitalnego wysyłanego od razu nowej osobie (0 = wyłączone)
 //   BREVO_CP_TEMPLATE_ID     szablon maila z raportem z kalkulatora CP (0 = zamiast niego zwykłe powitanie)
+//   BREVO_CP_REMINDER_TEMPLATE_ID szablon przypomnienia o powtórce testu po CP_REMINDER_DAYS dniach (cron codziennie rano)
+//   CP_KV                    KV z terminami przypomnień: due:RRRR-MM-DD:email → dane z raportu
 // Bez klucza lub listy Worker zwraca 503, a strona sama przechodzi na zapasowe powiadomienie mailem (FormSubmit).
 
 import { cpModel, pl } from './assets/js/cp-model.js';
@@ -166,6 +168,7 @@ async function newsletter(request, env) {
       subject: `Twój profil mocy: ${cp.params.TYPE} · CP ${cp.params.CP} W` };
     const sent = await brevo(apiKey, '/smtp/email', msg);
     if (!sent.ok) console.error('Brevo CP report error', sent.status, sent.code, sent.message);
+    else await scheduleReminder(env, email, name, cp.params);
   } else if (!doiTemplate && welcomeTemplate && (res.status === 201 || params)) {
     const msg = { templateId: welcomeTemplate, to: [name ? { email, name } : { email }], tags: [params ? 'ankieta' : 'powitanie'] };
     if (params) { msg.params = params; msg.subject = `Twój plan: ${params.PLAN_NAME} + kod −10%`; }
@@ -176,7 +179,60 @@ async function newsletter(request, env) {
   return json({ ok: true, relay: Boolean(f.plan), report: Boolean(cp) });
 }
 
+// ---------- przypomnienie o powtórce testu CP ----------
+const day = (d) => d.toISOString().slice(0, 10);
+
+async function scheduleReminder(env, email, name, p) {
+  if (!env.CP_KV) return;
+  try {
+    const days = parseInt(env.CP_REMINDER_DAYS || '56', 10);
+    const now = new Date();
+    const due = day(new Date(now.getTime() + days * 864e5));
+    const lastKey = 'last:' + email;
+    const prev = await env.CP_KV.get(lastKey);
+    if (prev) await env.CP_KV.delete(prev);            // nowy raport = nowy termin, stary znika
+    const key = `due:${due}:${email}`;
+    const data = { email, name, date: now.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Warsaw' }),
+      TYPE: p.TYPE, CP: p.CP, CP_KG: p.CP_KG, WK: p.WK, VO2: p.VO2 };
+    await env.CP_KV.put(key, JSON.stringify(data), { expirationTtl: (days + 30) * 86400 });
+    await env.CP_KV.put(lastKey, key, { expirationTtl: (days + 30) * 86400 });
+  } catch (e) { console.error('KV reminder error', e && e.message); }
+}
+
+async function sendReminders(env) {
+  const apiKey = String(env.BREVO_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+  const tpl = Number(env.BREVO_CP_REMINDER_TEMPLATE_ID);
+  const listId = parseInt(String(env.BREVO_LIST_ID || '').replace(/\D/g, ''), 10);
+  if (!env.CP_KV || !apiKey || !tpl) return;
+  const today = day(new Date());
+  let cursor, sent = 0;
+  do {
+    const page = await env.CP_KV.list({ prefix: 'due:', cursor });
+    for (const k of page.keys) {
+      if (k.name.slice(4, 14) > today) continue;       // termin jeszcze nie minął
+      const data = JSON.parse((await env.CP_KV.get(k.name)) || 'null');
+      await env.CP_KV.delete(k.name);
+      if (!data) continue;
+      // tylko do osób wciąż zapisanych na newsletter
+      const r = await fetch('https://api.brevo.com/v3/contacts/' + encodeURIComponent(data.email), { headers: { 'api-key': apiKey, Accept: 'application/json' } });
+      if (!r.ok) continue;
+      const c = await r.json().catch(() => ({}));
+      if (c.emailBlacklisted || (listId && !(c.listIds || []).includes(listId))) continue;
+      const res = await brevo(apiKey, '/smtp/email', {
+        templateId: tpl, to: [{ email: data.email, name: data.name }], tags: ['przypomnienie-cp'],
+        params: { DATE: data.date, TYPE: data.TYPE, CP: data.CP, CP_KG: data.CP_KG, WK: data.WK, VO2: data.VO2 },
+      });
+      if (res.ok) sent++; else console.error('Brevo reminder error', res.status, res.code, res.message);
+    }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  console.log('Przypomnienia CP wysłane:', sent);
+}
+
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(sendReminders(env));
+  },
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
     if (NEWSLETTER_PATHS.has(pathname)) return newsletter(request, env);
