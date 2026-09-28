@@ -4,7 +4,10 @@
 //   BREVO_LIST_ID            numer listy „Newsletter” w Brevo (Contacts → Lists, kolumna ID)
 //   BREVO_DOI_TEMPLATE_ID    opcjonalnie: szablon double opt-in; bez niego zapis jest od razu (zgoda z checkboxa)
 //   BREVO_WELCOME_TEMPLATE_ID szablon maila powitalnego wysyłanego od razu nowej osobie (0 = wyłączone)
+//   BREVO_CP_TEMPLATE_ID     szablon maila z raportem z kalkulatora CP (0 = zamiast niego zwykłe powitanie)
 // Bez klucza lub listy Worker zwraca 503, a strona sama przechodzi na zapasowe powiadomienie mailem (FormSubmit).
+
+import { cpModel, pl } from './assets/js/cp-model.js';
 
 const NEWSLETTER_PATHS = new Set(['/api/newsletter', '/api/newsletter.php']);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -67,6 +70,43 @@ async function planParams(f, email, request, env) {
   };
 }
 
+// Raport z kalkulatora CP: przeliczamy go tutaj z danych wejściowych (ten sam model co na stronie),
+// więc do maila trafiają tylko nasze liczby i teksty, nie wartości z formularza.
+function cpParams(raw) {
+  let inp;
+  try { inp = JSON.parse(String(raw || '')); } catch { return null; }
+  if (!inp || typeof inp !== 'object') return null;
+  const keys = ['age', 'weight', 'bf', 'p3', 'p12', 'sprint'];
+  const clean = { gender: inp.gender === 'female' ? 'female' : 'male' };
+  for (const k of keys) clean[k] = String(inp[k] ?? '').replace(/[^\d.,]/g, '').slice(0, 8);
+  const m = cpModel(clean);
+  if (m.error) return null;
+  const r = Math.round;
+  const z2 = m.fuel[0], ss = m.fuel[2];
+  return {
+    model: m,
+    params: {
+      TYPE: m.type, TYPE_DESC: m.typeDesc,
+      CP: String(r(m.cp)), CP_KG: pl(m.cpKg, 2), CP_RANK: m.cpRank.label,
+      WK: pl(m.wk, 1), W_KG: String(r(m.wKg)), W_LABEL: m.wLabel,
+      VO2: String(r(m.vo2)), UTIL: String(r(m.util)), FTP: String(r(m.ftp)), FFM: pl(m.ffm, 1),
+      UTIL_TXT: m.util >= 85 ? 'Próg jest blisko pułapu tlenowego – żeby dalej podnosić CP, podnieś VO2max.'
+        : m.util < 78 ? 'Między progiem a pułapem jest duży zapas – praca nad progiem da szybkie efekty.'
+        : 'Typowy zakres. U większości kolarzy o mocy progowej decydują VO2max i ekonomia jazdy.',
+      VLA: pl(m.vla, 2), VLA_LABEL: m.vlaLabel,
+      FATMAX: `${r(m.fatMax * 0.95)}–${r(m.fatMax * 1.05)}`, MFO_GH: String(r(m.mfo * 60)),
+      TYPE1: String(m.type1), T1_RANGE: String(m.type1Range), SPRINT: m.sprint ? String(r(m.sprint)) : '',
+      CURVE: [...(m.sprint ? [{ t: '12 s (PR)', w: r(m.sprint), wkg: pl(m.sprint / m.weight, 1) }] : []),
+        ...m.curve.map((c) => ({ t: c.t, w: c.w, wkg: pl(c.wkg, 2) }))],
+      FUEL: m.fuel.map((f) => ({ n: `${f.n} · ${f.pct}% CP`, w: f.w, fat: f.fat, cho: f.cho })),
+      FUEL_NOTE: `Przy sweet spocie spalasz ok. ${ss.cho} g węglowodanów na godzinę – więcej, niż wchłoną jelita (zwykle 60–90 g/h, po treningu jelit do 120 g/h). Na długich startach celuj w 80–100 g/h od pierwszych minut. Na spokojnej Z2 (${z2.w} W) wystarczy ok. ${Math.min(90, Math.max(40, r(z2.cho * 0.6 / 10) * 10))} g/h.`,
+      STRENGTHS: m.strengths, LIMITERS: m.limiters,
+      BODY: m.body ? `Przy ${pl(m.body.targetBf, 0)}% tkanki tłuszczowej (−${pl(m.body.lose, 1)} kg tłuszczu, bez utraty mięśni) Twoje CP dałoby ${pl(m.body.cpKg, 2)} W/kg zamiast ${pl(m.cpKg, 2)}. Redukcję planuj poza sezonem startowym.` : '',
+      FOCUS: m.focus, SESSIONS: m.sessions.map(([n, d]) => ({ n, d })),
+    },
+  };
+}
+
 async function newsletter(request, env) {
   if (request.method !== 'POST') return json({ ok: false, error: 'Metoda niedozwolona.' }, 405);
 
@@ -110,18 +150,31 @@ async function newsletter(request, env) {
   // mail powitalny od razu: nowemu kontaktowi (201) albo każdemu, kto przyszedł z ankiety doboru planu
   // (prosił o przesłanie planu) – wtedy z kartą polecanego planu
   const welcomeTemplate = Number(env.BREVO_WELCOME_TEMPLATE_ID);
+  const cpTemplate = Number(env.BREVO_CP_TEMPLATE_ID);
+  const cp = f.cp && cpTemplate ? cpParams(f.cp) : null;
+  if (cp) {
+    // polecany plan liczymy z modelu, nie z pól formularza
+    f.plan_slug = cp.model.rec.slug; f.plan_weeks = cp.model.rec.weeks; f.plan_hours = cp.model.rec.hours;
+  }
   let params = null;
   if (f.plan_slug) {
     try { params = await planParams(f, email, request, env); } catch (e) { console.error('plan params error', e && e.message); }
   }
-  if (!doiTemplate && welcomeTemplate && (res.status === 201 || params)) {
+  if (!doiTemplate && cp) {
+    // raport z kalkulatora CP wysyłamy zawsze (także osobom już zapisanym) – zamiast zwykłego powitania
+    const msg = { templateId: cpTemplate, to: [{ email, name }], tags: ['kalkulator-cp'],
+      params: { ...(params || {}), ...cp.params },
+      subject: `Twój profil mocy: ${cp.params.TYPE} · CP ${cp.params.CP} W` };
+    const sent = await brevo(apiKey, '/smtp/email', msg);
+    if (!sent.ok) console.error('Brevo CP report error', sent.status, sent.code, sent.message);
+  } else if (!doiTemplate && welcomeTemplate && (res.status === 201 || params)) {
     const msg = { templateId: welcomeTemplate, to: [name ? { email, name } : { email }], tags: [params ? 'ankieta' : 'powitanie'] };
     if (params) { msg.params = params; msg.subject = `Twój plan: ${params.PLAN_NAME} + kod −10%`; }
     const sent = await brevo(apiKey, '/smtp/email', msg);
     if (!sent.ok) console.error('Brevo welcome error', sent.status, sent.code, sent.message);
   }
   // ankieta doboru planu: kontakt jest w Brevo, ale strona wysyła też powiadomienie mailem z wybranym planem
-  return json({ ok: true, relay: Boolean(f.plan) });
+  return json({ ok: true, relay: Boolean(f.plan), report: Boolean(cp) });
 }
 
 export default {

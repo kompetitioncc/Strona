@@ -245,15 +245,15 @@ def raw(t):
     return "    " + t
 
 
-def plan_card():
-    """Karta planu polecanego w ankiecie doboru – wypełniana parametrami params.PLAN_* z Workera."""
+def plan_card(label="Twój plan z ankiety doboru"):
+    """Karta polecanego planu – wypełniana parametrami params.PLAN_* z Workera."""
     return f'''    <tr><td class="px" style="padding:26px 40px 0;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="box" style="background:{SAND};border:1px solid {LINE};border-radius:14px;">
         <tr><td style="padding:0;">
           <a href="{{{{ params.PLAN_URL }}}}" target="_blank"><img src="{{{{ params.PLAN_IMG }}}}" width="520" alt="{{{{ params.PLAN_NAME }}}}" style="width:100%;max-width:520px;border-radius:14px 14px 0 0;"></a>
         </td></tr>
         <tr><td style="padding:22px 24px 0;">
-          <div class="t-muted" style="font:600 13px/16px {DISPLAY};letter-spacing:2px;text-transform:uppercase;color:{MUTED};">Twój plan z ankiety doboru</div>
+          <div class="t-muted" style="font:600 13px/16px {DISPLAY};letter-spacing:2px;text-transform:uppercase;color:{MUTED};">{label}</div>
           <div class="t-ink" style="padding-top:6px;font:800 32px/32px {DISPLAY};text-transform:uppercase;color:{INK};">{{{{ params.PLAN_NAME }}}}</div>
           <div class="t-ink" style="padding-top:8px;font:700 15px/22px {TEXT};color:{INK};">{{{{ params.PLAN_VARIANT }}}}</div>
           <div class="t-ink" style="padding-top:10px;font:15px/23px {TEXT};color:{INK};">{{{{ params.PLAN_TAGLINE }}}}</div>
@@ -438,3 +438,131 @@ body = "\n".join([
 (OUT / "05-wpis-roztrenowanie.html").write_text(page("Roztrenowanie – niepopularna opinia", "Forma ucieka najpierw przez krew. Jak to zatrzymać bez trenażera?", body, c))
 
 print("OK:", sorted(x.name for x in OUT.glob("*.html")))
+
+
+# ---------- 6. RAPORT Z KALKULATORA CP (wysyłany przez Workera, params.* liczone w cp-model.js) ----------
+c = "kalkulator-cp"
+DARK, DARK_LINE, DARK_MUTED = "#141416", "#2a2a2d", "#a9a9ae"
+
+
+def stat_cell(label, value, unit):
+    return f"""<td class="stack stack-pad" width="25%" valign="top" style="padding:0 6px 0 0;">
+            <div style="font:600 12px/14px {DISPLAY};letter-spacing:2px;text-transform:uppercase;color:{DARK_MUTED};">{label}</div>
+            <div style="padding-top:4px;font:800 34px/34px {DISPLAY};color:#ffffff;">{value}<span style="font-size:15px;color:{DARK_MUTED};"> {unit}</span></div>
+          </td>"""
+
+
+def report_hero():
+    return f"""    <tr><td class="px" style="padding:26px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{DARK}" style="background-color:{DARK};background-image:linear-gradient({DARK},{DARK});border-radius:16px;">
+        <tr><td style="padding:24px 24px 0;font:600 13px/16px {DISPLAY};letter-spacing:2px;text-transform:uppercase;color:{DARK_MUTED};">Twój fenotyp</td></tr>
+        <tr><td style="padding:6px 24px 0;font:800 50px/48px {DISPLAY};text-transform:uppercase;color:{SUN};">{{{{ params.TYPE }}}}</td></tr>
+        <tr><td style="padding:10px 24px 0;font:15px/23px {TEXT};color:#d6d4cd;">{{{{ params.TYPE_DESC }}}}</td></tr>
+        <tr><td style="padding:20px 24px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid {DARK_LINE};"><tr><td style="padding-top:16px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          {stat_cell("CP", "{{ params.CP }}", "W")}
+          {stat_cell("W'", "{{ params.WK }}", "kJ")}
+          {stat_cell("VO2max", "{{ params.VO2 }}", "ml/kg")}
+          {stat_cell("VLaMax", "{{ params.VLA }}", "mmol")}
+            </tr></table>
+          </td></tr></table>
+        </td></tr>
+      </table>
+    </td></tr>"""
+
+
+def kv_table(rows):
+    trs = "".join(
+        f"""
+        <tr><td class="t-ink line" style="padding:11px 0;border-bottom:1px solid {LINE};font:15px/21px {TEXT};color:{INK};">{k}</td>
+            <td class="t-ink line" align="right" style="padding:11px 0;border-bottom:1px solid {LINE};font:800 20px/22px {DISPLAY};color:{INK};white-space:nowrap;">{v}</td></tr>"""
+        for k, v in rows)
+    return f"""    <tr><td class="px" style="padding:10px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{trs}
+      </table>
+    </td></tr>"""
+
+
+def loop_table(head, loop, cells):
+    AR = 'align="right"'
+    ths = "".join(f'<td class="t-muted line" {AR if i else ""} style="padding:0 0 8px;border-bottom:1px solid {LINE};font:600 12px/14px {DISPLAY};letter-spacing:1.5px;text-transform:uppercase;color:{MUTED};">{h}</td>' for i, h in enumerate(head))
+    last = len(cells) - 1
+    tds = "".join(f'<td class="t-ink line" {AR if i else ""} style="padding:10px 0;border-bottom:1px solid {LINE};font:{("800 18px/20px " + DISPLAY) if i == last else ("15px/20px " + TEXT)};color:{INK};">{c}</td>' for i, c in enumerate(cells))
+    return f"""    <tr><td class="px" style="padding:12px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>{ths}</tr>
+        {{% for {loop} %}}<tr>{tds}</tr>{{% endfor %}}
+      </table>
+    </td></tr>"""
+
+
+def bullet_loop(var, color):
+    return f"""    <tr><td class="px" style="padding:10px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        {{% for x in params.{var} %}}<tr><td valign="top" width="20" style="padding:6px 0;"><div style="width:10px;height:10px;border-radius:3px;background:{color};margin-top:6px;font-size:0;line-height:0;">&nbsp;</div></td><td class="t-ink" style="padding:6px 0;font:15px/23px {TEXT};color:{INK};">{{{{ x }}}}</td></tr>{{% endfor %}}
+      </table>
+    </td></tr>"""
+
+
+def training_band():
+    return f"""    <tr><td class="px" style="padding:30px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{DARK}" style="background-color:{DARK};background-image:linear-gradient({DARK},{DARK});border-radius:16px;">
+        <tr><td style="padding:24px 24px 0;font:600 13px/16px {DISPLAY};letter-spacing:2px;text-transform:uppercase;color:{DARK_MUTED};">Priorytet na najbliższe 8 tygodni</td></tr>
+        <tr><td style="padding:8px 24px 0;font:800 24px/26px {DISPLAY};text-transform:uppercase;color:#ffffff;">{{{{ params.FOCUS }}}}</td></tr>
+        <tr><td style="padding:14px 24px 22px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            {{% for s in params.SESSIONS %}}<tr><td style="padding:10px 0;border-top:1px solid {DARK_LINE};">
+              <div style="font:800 18px/20px {DISPLAY};text-transform:uppercase;color:{SUN};">{{{{ s.n }}}}</div>
+              <div style="padding-top:3px;font:14px/21px {TEXT};color:#d6d4cd;">{{{{ s.d }}}}</div>
+            </td></tr>{{% endfor %}}
+          </table>
+        </td></tr>
+      </table>
+    </td></tr>"""
+
+
+body = "\n".join([
+    eyebrow("Kalkulator CP · raport"),
+    h1("Twój profil mocy"),
+    p(f"<strong>{GREETING}</strong>", 20),
+    p("Oto pełny raport z kalkulatora na kompetition.cc: z Twoich wyników z 3 i 12 minut{% if params.SPRINT %} i sprintu 12 s{% endif %}. Zachowaj go – przyda się przy ustawianiu treningów i do porównania po kolejnym teście."),
+    report_hero(),
+    h2("Silnik", 32),
+    kv_table([
+        ("Moc krytyczna (CP) · {{ params.CP_RANK }}", "{{ params.CP_KG }} W/kg"),
+        ("W' – bak beztlenowy · {{ params.W_LABEL }}", "{{ params.W_KG }} J/kg"),
+        ("60 min (szac. FTP)", "{{ params.FTP }} W"),
+        ("Wykorzystanie VO2max na progu", "{{ params.UTIL }}%"),
+        ("Masa beztłuszczowa", "{{ params.FFM }} kg"),
+    ]),
+    p('<span class="t-muted" style="color:#5b5b60;font-size:14px;">{{ params.UTIL_TXT }}</span>', 12),
+    h2("Metabolizm", 32),
+    kv_table([
+        ("VLaMax · {{ params.VLA_LABEL }}", "{{ params.VLA }} mmol/l/s"),
+        ("FatMax (do ok. {{ params.MFO_GH }} g tłuszczu/h)", "{{ params.FATMAX }} W"),
+        ("Włókna typu I (szacunek ± {{ params.T1_RANGE }} pp)", "{{ params.TYPE1 }}%"),
+    ]),
+    h2("Krzywa mocy", 32),
+    loop_table(["Czas", "Moc", "W/kg"], "c in params.CURVE", ["{{ c.t }}", "{{ c.w }} W", "{{ c.wkg }}"]),
+    h2("Paliwo", 32),
+    loop_table(["Intensywność", "Moc", "Tłuszcz g/h", "Węgl. g/h"], "f in params.FUEL", ["{{ f.n }}", "{{ f.w }} W", "{{ f.fat }}", "{{ f.cho }}"]),
+    p('<span style="display:block;background:#fff6c2;border-radius:12px;padding:14px 16px;font-size:14px;line-height:22px;color:#0b0b0c;">{{ params.FUEL_NOTE }}</span>', 14),
+    h2("Mocne strony", 32),
+    bullet_loop("STRENGTHS", "#1f9d55"),
+    h2("Ograniczniki", 26),
+    bullet_loop("LIMITERS", "#d9362b"),
+    raw("{% if params.BODY %}"),
+    p('<strong>Skład ciała.</strong> {{ params.BODY }}', 16),
+    raw("{% endif %}"),
+    training_band(),
+    raw("{% if params.PLAN_NAME %}"),
+    plan_card("Polecam na bazie Twojego profilu"),
+    raw("{% endif %}"),
+    code_box("WITAJ10", "Twój kod: −10% na pierwszy plan", "Wpisz go przy płatności · ważny 14 dni"),
+    dark_band("Chcesz, żebym prowadził to za Ciebie?", "W opiece trenerskiej regularnie aktualizuję CP, W' i profil – i przekładam je na plan tydzień po tygodniu.", "Opieka trenerska", u("/opieka-trenerska/", c)),
+    p('<span class="t-muted" style="color:#5b5b60;font-size:13px;line-height:20px;">Wyniki poza CP i W\' to szacunki z modelu i zależności opisanych w badaniach (m.in. Sitko i in. 2021 i 2023, Vanhatalo i in. 2016), nie pomiar laboratoryjny. Masz pytanie do raportu? Po prostu odpisz na tego maila.</span>', 24),
+    signature(),
+    end(),
+])
+(OUT / "06-raport-cp.html").write_text(page("Twój profil mocy", "CP, W', VO2max, VLaMax, FatMax, paliwo i plan – Twój raport z kalkulatora.", body, c))
