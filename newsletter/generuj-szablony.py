@@ -561,3 +561,39 @@ body = "\n".join([
     end(),
 ])
 (OUT / "06-raport-cp.html").write_text(page("Twój profil mocy", "CP, W', VO2max, VLaMax, FatMax, paliwo i plan – Twój raport z kalkulatora.", body, c))
+
+
+# ---------- 7. PRZYPOMNIENIE: POWTÓRKA TESTU CP PO 8 TYGODNIACH (wysyła Worker z crona) ----------
+c = "przypomnienie-cp"
+body = "\n".join([
+    eyebrow("Kalkulator CP · 8 tygodni później"),
+    h1("Czas na powtórkę testu"),
+    p(f"<strong>{GREETING}</strong>", 20),
+    p("Minęło 8 tygodni od Twojego raportu z kalkulatora CP. To dokładnie tyle, ile potrzeba, żeby trening przełożył się na liczby – czas sprawdzić, co się zmieniło."),
+    f"""    <tr><td class="px" style="padding:26px 40px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{DARK}" style="background-color:{DARK};background-image:linear-gradient({DARK},{DARK});border-radius:16px;">
+        <tr><td style="padding:24px 24px 0;font:600 13px/16px {DISPLAY};letter-spacing:2px;text-transform:uppercase;color:{DARK_MUTED};">Twój wynik z {{{{ params.DATE }}}}</td></tr>
+        <tr><td style="padding:6px 24px 0;font:800 44px/44px {DISPLAY};text-transform:uppercase;color:{SUN};">{{{{ params.TYPE }}}}</td></tr>
+        <tr><td style="padding:18px 24px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          {stat_cell("CP", "{{ params.CP }}", "W")}
+          {stat_cell("W/kg", "{{ params.CP_KG }}", "")}
+          {stat_cell("W'", "{{ params.WK }}", "kJ")}
+          {stat_cell("VO2max", "{{ params.VO2 }}", "ml/kg")}
+          </tr></table>
+        </td></tr>
+      </table>
+    </td></tr>""",
+    h2("Jak zrobić test, żeby porównanie miało sens", 32),
+    ul([
+        "<strong>Te same warunki</strong>: ten sam rower, miernik mocy i miejsce (trenażer albo szosa) co ostatnio.",
+        "<strong>Wypoczęty</strong>: 1–2 dni wcześniej tylko spokojna jazda – najlepiej na koniec tygodnia odciążenia.",
+        "<strong>Równy pacing</strong>: 3 minuty bez sprintu na starcie, 12 minut cierpliwie w pierwszych dwóch minutach.",
+    ]),
+    button("Instrukcja testu krok po kroku", u("/blog/test-cp-3-12-min/", c)),
+    button("Otwórz kalkulator CP", u("/cp-kalkulator/", c), 14, ghost=True),
+    p("Nowy raport przyjdzie od razu na maila – porównaj CP, W' i fenotyp z liczbami powyżej. Masz pytanie albo wynik Cię zaskoczył? Po prostu odpisz na tego maila.", 26),
+    signature(),
+    end(),
+])
+(OUT / "07-przypomnienie-cp.html").write_text(page("Czas na powtórkę testu CP", "Minęło 8 tygodni od Twojego raportu – sprawdź, ile urosło Twoje CP.", body, c))
