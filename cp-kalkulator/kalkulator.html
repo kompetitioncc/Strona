@@ -750,7 +750,7 @@ function submitLead(e) {
       setLocked(false);
       statusEl.textContent = '';
       $('mailForm').hidden = true;
-      $('mailTxt').innerHTML = `Wysłałem raport na <b>${esc(email.value)}</b>. Jeśli go nie widzisz, zajrzyj do Ofert lub Spamu.`;
+      $('mailTxt').innerHTML = res.j && res.j.confirm ? `Wysłałem link potwierdzający na <b>${esc(email.value)}</b>. Kliknij go, a raport od razu przyjdzie na Twoją skrzynkę (zajrzyj też do Ofert lub Spamu).` : `Wysłałem raport na <b>${esc(email.value)}</b>. Jeśli go nie widzisz, zajrzyj do Ofert lub Spamu.`;
       if (wasLocked) reveal($('report'));
       try {
         window.parent && window.parent.dataLayer && window.parent.dataLayer.push({ event: 'sign_up', method: 'cp_kalkulator' });

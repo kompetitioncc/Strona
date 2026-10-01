@@ -156,6 +156,19 @@
     e.preventDefault(); try { localStorage.removeItem(CK.stat); localStorage.removeItem(CK.mkt); } catch (e2) {}
     location.reload();
   });
+  /* Powrót z linku potwierdzającego zapis (double opt-in) */
+  (function () {
+    var q = new URLSearchParams(location.search), msg = '';
+    if (q.get('newsletter') === 'potwierdzony') msg = 'Zapis potwierdzony – dzięki! Pierwszy mail jest już w drodze.';
+    if (q.get('raport') === 'wyslany') msg = 'Zapis potwierdzony – raport z kalkulatora CP jest już na Twojej skrzynce.';
+    if (!msg) return;
+    try { localStorage.setItem('kom-nl', 'subscribed'); } catch (e) {}
+    var t = doc.createElement('div'); t.setAttribute('role', 'status');
+    t.style.cssText = 'position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:96;max-width:calc(100% - 32px);background:#0b0b0c;color:#fff;border-left:5px solid #ffd500;border-radius:12px;padding:14px 18px;font-size:.95rem;box-shadow:0 20px 50px -12px rgba(0,0,0,.4)';
+    t.textContent = msg; body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 7000);
+    if (history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+  })();
   /* Zakup: strona /dziekuje/ po płatności Stripe */
   if (/^\/dziekuje\/?$/.test(location.pathname)) {
     var qp = new URLSearchParams(location.search), pPlan = qp.get('plan'), pW = qp.get('w'), pVal = null, pName = pPlan;
@@ -181,10 +194,11 @@
       var data = new FormData(form); data.append('page', location.pathname);
       var say = function (m, ok) { if (status) { status.textContent = m; status.className = 'form-status ' + (ok ? 'ok' : 'err'); } };
       btn && (btn.disabled = true); say('Wysyłanie…', true);
+      var needConfirm = false;
       var done = function () {
         form.reset();
-        if (type === 'newsletter') { try { localStorage.setItem('kom-nl', 'subscribed'); } catch (e2) {} var pop = form.closest('.nl-pop'); pop && setTimeout(function () { pop.classList.remove('show'); setTimeout(function () { pop.remove(); }, 300); }, 2200); }
-        say(type === 'newsletter' ? 'Dziękuję! Jesteś na liście.' : 'Dziękuję! Wiadomość wysłana — odezwę się najszybciej, jak to możliwe.', true);
+        if (type === 'newsletter') { try { localStorage.setItem('kom-nl', 'subscribed'); } catch (e2) {} var pop = form.closest('.nl-pop'); pop && setTimeout(function () { pop.classList.remove('show'); setTimeout(function () { pop.remove(); }, 300); }, needConfirm ? 6000 : 2200); }
+        say(type === 'newsletter' ? (needConfirm ? 'Prawie gotowe! Wysłałem Ci e-mail z linkiem – kliknij go, żeby potwierdzić zapis (zajrzyj też do Ofert lub Spamu).' : 'Dziękuję! Jesteś na liście.') : 'Dziękuję! Wiadomość wysłana — odezwę się najszybciej, jak to możliwe.', true);
         window.dataLayer && window.dataLayer.push({ event: type === 'newsletter' ? 'sign_up' : 'generate_lead' });
         if (type === 'newsletter' && data.get('plan')) window.komFb('Lead', { content_name: 'Ankieta: ' + data.get('plan') });
         else if (type === 'newsletter') window.komFb('CompleteRegistration', { content_name: 'Newsletter' });
@@ -207,7 +221,7 @@
       fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } })
         .then(function (r) { return r.json().catch(function () { return null; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
         .then(function (res) {
-          if (res.ok && res.j && res.j.ok !== false) return res.j.relay ? relay().then(done, done) : done();
+          if (res.ok && res.j && res.j.ok !== false) { needConfirm = Boolean(res.j.confirm); return res.j.relay ? relay().then(done, done) : done(); }
           // błąd walidacji z naszego skryptu (np. zły e-mail) – pokaż go, nie przekierowuj
           if (res.j && res.j.error && (res.status === 422 || res.status === 429)) { var ve = new Error(res.j.error); ve.validation = true; throw ve; }
           return relay().then(done);

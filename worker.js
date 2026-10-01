@@ -2,7 +2,8 @@
 // Zmienne (Cloudflare → Workers → kompetitioncc → Settings → Variables and Secrets, typ „Secret”):
 //   BREVO_API_KEY            klucz API Brevo (SMTP & API → API Keys)
 //   BREVO_LIST_ID            numer listy „Newsletter” w Brevo (Contacts → Lists, kolumna ID)
-//   BREVO_DOI_TEMPLATE_ID    opcjonalnie: szablon double opt-in; bez niego zapis jest od razu (zgoda z checkboxa)
+//   BREVO_DOI_TEMPLATE_ID    szablon double opt-in (tag „optin”, link {{ doubleoptin }}); nowe osoby potwierdzają zapis,
+//                            raport CP / mail z planem idą dopiero po kliknięciu (dane czekają w CP_KV jako pending:<token>, 7 dni)
 //   BREVO_WELCOME_TEMPLATE_ID szablon maila powitalnego wysyłanego od razu nowej osobie (0 = wyłączone)
 //   BREVO_CP_TEMPLATE_ID     szablon maila z raportem z kalkulatora CP (0 = zamiast niego zwykłe powitanie)
 //   BREVO_CP_REMINDER_TEMPLATE_ID szablon przypomnienia o powtórce testu po CP_REMINDER_DAYS dniach (cron codziennie rano)
@@ -136,23 +137,49 @@ async function newsletter(request, env) {
 
   const attributes = name ? { FIRSTNAME: name } : {};
   const doiTemplate = Number(env.BREVO_DOI_TEMPLATE_ID);
-  const res = doiTemplate
-    ? await brevo(apiKey, '/contacts/doubleOptinConfirmation', {
-        email, attributes, includeListIds: [listId], templateId: doiTemplate,
-        redirectionUrl: new URL('/?newsletter=potwierdzony', request.url).href,
-      })
-    : await brevo(apiKey, '/contacts', { email, attributes, listIds: [listId], updateEnabled: true });
+  const cpTemplate = Number(env.BREVO_CP_TEMPLATE_ID);
+  const cp = f.cp && cpTemplate ? cpParams(f.cp) : null;
 
+  // double opt-in: nowa osoba (albo wypisana / spoza listy) najpierw potwierdza adres linkiem z maila.
+  // Raport CP i mail z planem wysyłamy dopiero po kliknięciu – dane czekają w KV pod losowym tokenem.
+  if (doiTemplate && !(await isSubscribed(apiKey, email, listId))) {
+    if (!env.CP_KV) return json({ ok: false, error: 'Newsletter nie jest jeszcze skonfigurowany.' }, 503);
+    const token = crypto.randomUUID().replace(/-/g, '');
+    const pending = { email, name, cp: cp ? String(f.cp).slice(0, 1000) : '', plan_slug: f.plan_slug || '', plan_weeks: f.plan_weeks || '', plan_hours: f.plan_hours || '' };
+    await env.CP_KV.put('pending:' + token, JSON.stringify(pending), { expirationTtl: 7 * 86400 });
+    const res = await brevo(apiKey, '/contacts/doubleOptinConfirmation', {
+      email, attributes, includeListIds: [listId], templateId: doiTemplate,
+      redirectionUrl: new URL('/api/newsletter/potwierdz?t=' + token, request.url).href,
+    });
+    if (!res.ok) {
+      console.error('Brevo DOI error', res.status, res.code, res.message);
+      return json({ ok: false, error: 'Nie udało się zapisać. Spróbuj ponownie.' }, 502);
+    }
+    // ankieta doboru planu: strona i tak wysyła powiadomienie mailem z wybranym planem (relay)
+    return json({ ok: true, confirm: true, relay: Boolean(f.plan), report: Boolean(cp) });
+  }
+
+  // osoba już zapisana (albo double opt-in wyłączony): aktualizacja kontaktu i maile od razu
+  const res = await brevo(apiKey, '/contacts', { email, attributes, listIds: [listId], updateEnabled: true });
   if (!res.ok) {
     console.error('Brevo error', res.status, res.code, res.message);
     return json({ ok: false, error: 'Nie udało się zapisać. Spróbuj ponownie.' }, 502);
   }
+  await sendFollowUp(env, request, apiKey, { email, name, cp, f, isNew: res.status === 201 });
+  return json({ ok: true, relay: Boolean(f.plan), report: Boolean(cp) });
+}
 
-  // mail powitalny od razu: nowemu kontaktowi (201) albo każdemu, kto przyszedł z ankiety doboru planu
-  // (prosił o przesłanie planu) – wtedy z kartą polecanego planu
+async function isSubscribed(apiKey, email, listId) {
+  const r = await fetch('https://api.brevo.com/v3/contacts/' + encodeURIComponent(email), { headers: { 'api-key': apiKey, Accept: 'application/json' } });
+  if (!r.ok) return false;
+  const c = await r.json().catch(() => ({}));
+  return !c.emailBlacklisted && (c.listIds || []).includes(listId);
+}
+
+// raport CP albo mail powitalny (z kartą planu, jeśli przyszedł z ankiety doboru)
+async function sendFollowUp(env, request, apiKey, { email, name, cp, f, isNew }) {
   const welcomeTemplate = Number(env.BREVO_WELCOME_TEMPLATE_ID);
   const cpTemplate = Number(env.BREVO_CP_TEMPLATE_ID);
-  const cp = f.cp && cpTemplate ? cpParams(f.cp) : null;
   if (cp) {
     // polecany plan liczymy z modelu, nie z pól formularza
     f.plan_slug = cp.model.rec.slug; f.plan_weeks = cp.model.rec.weeks; f.plan_hours = cp.model.rec.hours;
@@ -161,7 +188,7 @@ async function newsletter(request, env) {
   if (f.plan_slug) {
     try { params = await planParams(f, email, request, env); } catch (e) { console.error('plan params error', e && e.message); }
   }
-  if (!doiTemplate && cp) {
+  if (cp) {
     // raport z kalkulatora CP wysyłamy zawsze (także osobom już zapisanym) – zamiast zwykłego powitania
     const msg = { templateId: cpTemplate, to: [{ email, name }], tags: ['kalkulator-cp'],
       params: { ...(params || {}), ...cp.params },
@@ -169,14 +196,34 @@ async function newsletter(request, env) {
     const sent = await brevo(apiKey, '/smtp/email', msg);
     if (!sent.ok) console.error('Brevo CP report error', sent.status, sent.code, sent.message);
     else await scheduleReminder(env, email, name, cp.params);
-  } else if (!doiTemplate && welcomeTemplate && (res.status === 201 || params)) {
+  } else if (welcomeTemplate && (isNew || params)) {
     const msg = { templateId: welcomeTemplate, to: [name ? { email, name } : { email }], tags: [params ? 'ankieta' : 'powitanie'] };
     if (params) { msg.params = params; msg.subject = `Twój plan: ${params.PLAN_NAME} + kod −10%`; }
     const sent = await brevo(apiKey, '/smtp/email', msg);
     if (!sent.ok) console.error('Brevo welcome error', sent.status, sent.code, sent.message);
   }
-  // ankieta doboru planu: kontakt jest w Brevo, ale strona wysyła też powiadomienie mailem z wybranym planem
-  return json({ ok: true, relay: Boolean(f.plan), report: Boolean(cp) });
+}
+
+// kliknięcie linku z maila potwierdzającego: Brevo dopisuje kontakt do listy i przekierowuje tutaj
+async function confirmSubscription(request, env) {
+  const url = new URL(request.url);
+  const home = (q) => Response.redirect(new URL('/' + q, request.url).href, 302);
+  const token = (url.searchParams.get('t') || '').replace(/[^a-f0-9]/g, '');
+  if (!token || !env.CP_KV) return home('?newsletter=potwierdzony');
+  const raw = await env.CP_KV.get('pending:' + token);
+  if (!raw) return home('?newsletter=potwierdzony');
+  const p = JSON.parse(raw);
+  const apiKey = String(env.BREVO_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+  const listId = parseInt(String(env.BREVO_LIST_ID || '').replace(/\D/g, ''), 10);
+  // maile wysyłamy tylko wtedy, gdy adres faktycznie jest już potwierdzony na liście
+  if (!apiKey || !listId || !(await isSubscribed(apiKey, p.email, listId))) return home('?newsletter=potwierdzony');
+  await env.CP_KV.delete('pending:' + token);
+  const cp = p.cp ? cpParams(p.cp) : null;
+  try {
+    await sendFollowUp(env, request, apiKey, { email: p.email, name: p.name, cp, isNew: true,
+      f: { plan_slug: p.plan_slug, plan_weeks: p.plan_weeks, plan_hours: p.plan_hours } });
+  } catch (e) { console.error('confirm follow-up error', e && e.message); }
+  return cp ? Response.redirect(new URL('/cp-kalkulator/?raport=wyslany', request.url).href, 302) : home('?newsletter=potwierdzony');
 }
 
 // ---------- przypomnienie o powtórce testu CP ----------
@@ -235,6 +282,7 @@ export default {
   },
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
+    if (pathname === '/api/newsletter/potwierdz') return confirmSubscription(request, env);
     if (NEWSLETTER_PATHS.has(pathname)) return newsletter(request, env);
     return env.ASSETS.fetch(request);
   },

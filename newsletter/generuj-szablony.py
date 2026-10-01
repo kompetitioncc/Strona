@@ -597,3 +597,27 @@ body = "\n".join([
     end(),
 ])
 (OUT / "07-przypomnienie-cp.html").write_text(page("Czas na powtórkę testu CP", "Minęło 8 tygodni od Twojego raportu – sprawdź, ile urosło Twoje CP.", body, c))
+
+# ---------- 8. POTWIERDZENIE ZAPISU (double opt-in) ----------
+# W Brevo szablon musi mieć tag „optin”, a przycisk prowadzi do {{ doubleoptin }}.
+c = "potwierdzenie"
+body = "\n".join([
+    eyebrow("Potwierdź zapis"),
+    h1("Jeszcze jedno kliknięcie"),
+    p("<strong>Cześć!</strong>", 20),
+    p("Dzięki za zapis na newsletter KOMpetition.cc. Kliknij przycisk poniżej, żeby potwierdzić, że to Twój adres e-mail."),
+    p("Jeśli prosiłeś/aś o raport z kalkulatora CP albo plan z ankiety doboru, wyślę go od razu po potwierdzeniu."),
+    button("Potwierdzam zapis", "{{ doubleoptin }}"),
+    p(f'<span class="t-muted" style="color:{MUTED};">Jeśli to nie Ty zapisałeś/aś się na newsletter, po prostu zignoruj tę wiadomość. Bez potwierdzenia nie dostaniesz ode mnie żadnych maili.</span>', 26),
+    signature(),
+    end(),
+])
+doi = page("Potwierdź zapis na newsletter", "Kliknij, żeby potwierdzić adres. Bez tego nie wyślę Ci żadnych maili.", body, c)
+# w mailu potwierdzającym nie ma jeszcze subskrypcji – bez linków do wypisania i zmiany danych
+doi = doi.replace('Dostajesz ten mail, bo zapisałeś/aś się na newsletter KOMpetition.cc.', 'Dostajesz ten mail, bo ten adres wpisano w formularzu zapisu na KOMpetition.cc.')
+doi = doi.replace(f'''    <a href="{{{{ unsubscribe }}}}" style="color:{MUTED};">Wypisz się</a>
+    &nbsp;·&nbsp;
+    <a href="{{{{ update_profile }}}}" style="color:{MUTED};">Zmień dane</a>
+    &nbsp;·&nbsp;
+''', '')
+(OUT / "08-potwierdzenie-zapisu.html").write_text(doi)
